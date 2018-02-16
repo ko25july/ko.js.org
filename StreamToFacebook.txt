@@ -1,2 +1,8 @@
-eIgK53n7Ov5kZHjDc+BKpr3fB2/z9Pmv
-VR/dOH+5DetHGIFoZYAaVQ==
+[
+  {
+    "FacebookEmail": "eIgK53n7Ov5kZHjDc+BKpr3fB2/z9Pmv",
+    "FacebookPassword": "VR/dOH+5DetHGIFoZYAaVQ==",
+    "MessagePeriod": 10,
+    "StreamPeriod": 30
+  }
+]
