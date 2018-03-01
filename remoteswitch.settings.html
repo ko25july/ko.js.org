@@ -11,10 +11,21 @@
 <script language="javascript" type="text/javascript">
 
 function init() {
-	var webSocketURI = prompt("Please enter URI of WebSocket Server.");
-	var webSocketGUID = prompt("Please enter GUID of WebSocket Server.");
+	var settings = JSON.parse(localStorage.getItem("settings"));
+	var webSocketURI;
+	var webSocketGUID;
+
+	if (settings) {
+		webSocketURI = settings.WebSocketURI;
+		webSocketGUID = settings.WebSocketGUID;
+	}
+
+	webSocketURI = prompt("Please enter URI of WebSocket Server.", webSocketURI);
+	webSocketGUID = prompt("Please enter GUID of WebSocket Server.", webSocketGUID);
 
 	localStorage.setItem("settings", "{\"WebSocketURI\": \"" + webSocketURI + "\", \"WebSocketGUID\": \"" + webSocketGUID + "\"}");
+
+	alert(JSON.parse(localStorage.getItem("settings")));
 }
 
 window.addEventListener("load", init, false);
