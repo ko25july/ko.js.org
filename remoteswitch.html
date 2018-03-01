@@ -66,20 +66,13 @@ function init() {
 	connect();
 }
 
-function getSettings() {
-	var settings = JSON.parse(localStorage.getItem("settings"));
-	console.log(settings);
-
-	if (!settings) {
+function connect() {
+	if (!JSON.parse(localStorage.getItem("settings"))) {
 		var webSocketURI = prompt("Please enter URI of WebSocket Server.");
 		var webSocketGUID = prompt("Please enter GUID of WebSocket Server.");
 
 		localStorage.setItem("settings", "{\"WebSocketURI\": \"" + webSocketURI + "\", \"WebSocketGUID\": \"" + webSocketGUID + "\"}");
 	}
-}
-
-function connect() {
-	getSettings();
 
 	websocket = new WebSocket(JSON.parse(localStorage.getItem("settings")).WebSocketURI);
 	websocket.onopen = function(event) { onOpen(event) };
