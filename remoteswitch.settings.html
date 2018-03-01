@@ -12,8 +12,8 @@
 
 function init() {
 	var settings = JSON.parse(localStorage.getItem("settings"));
-	var webSocketURI;
-	var webSocketGUID;
+	var webSocketURI = "";
+	var webSocketGUID = "";
 
 	if (settings) {
 		webSocketURI = settings.WebSocketURI;
@@ -23,9 +23,11 @@ function init() {
 	webSocketURI = prompt("Please enter URI of WebSocket Server.", webSocketURI);
 	webSocketGUID = prompt("Please enter GUID of WebSocket Server.", webSocketGUID);
 
-	localStorage.setItem("settings", "{\"WebSocketURI\": \"" + webSocketURI + "\", \"WebSocketGUID\": \"" + webSocketGUID + "\"}");
+	if (webSocketURI && webSocketGUID) {
+		localStorage.setItem("settings", "{\"WebSocketURI\": \"" + webSocketURI + "\", \"WebSocketGUID\": \"" + webSocketGUID + "\"}");
 
-	alert(JSON.parse(localStorage.getItem("settings")));
+		alert(JSON.parse(JSON.stringify(localStorage.getItem("settings"))));
+	}
 }
 
 window.addEventListener("load", init, false);
