@@ -79,6 +79,8 @@ function getSettings() {
 }
 
 function connect() {
+	getSettings();
+
 	websocket = new WebSocket(JSON.parse(localStorage.getItem("settings")).WebSocketURI);
 	websocket.onopen = function(event) { onOpen(event) };
 	websocket.onclose = function(event) { onClose(event) };
