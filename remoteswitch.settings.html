@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Remote Switch Settings</title>
+</head>
+
+<body>
+
+<script language="javascript" type="text/javascript">
+
+function init() {
+	var webSocketURI = prompt("Please enter URI of WebSocket Server.");
+	var webSocketGUID = prompt("Please enter GUID of WebSocket Server.");
+
+	localStorage.setItem("settings", "{\"WebSocketURI\": \"" + webSocketURI + "\", \"WebSocketGUID\": \"" + webSocketGUID + "\"}");
+}
+
+window.addEventListener("load", init, false);
+
+</script>
+
+</body>
+
+</html>
