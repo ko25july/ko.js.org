@@ -1,0 +1,10 @@
+{
+  "007055E7":
+  {
+    "WebSocketHost": "node2.wsninja.io",
+    "WebSocketPath": "/",
+    "WebSocketPort": 443,
+    "WebSocketURI": "wss://node2.wsninja.io",
+    "WebSocketGUID": "b8fd9315-51d7-494e-a0a6-338f745d6542"
+  }
+}
