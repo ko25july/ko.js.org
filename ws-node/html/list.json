@@ -1,6 +1,18 @@
 [
-  "index.html",
-  "status.html",
-  "remote.html",
-  "console.html"
+  {
+    "path": "/",
+    "html": "index.html"
+  },
+  {
+    "path": "/status",
+    "html": "status.html"
+  },
+  {
+    "path": "/remote",
+    "html": "remote.html"
+  },
+  {
+    "path": "/console",
+    "html": "console.html"
+  }
 ]
