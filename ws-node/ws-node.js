@@ -291,7 +291,7 @@ app.get("/clear", function(req, res) {
 
 app.post("/command", function(req, res) {
   res.setHeader("Content-Type", "text/plain");
-  res.end(runScript(req.body.eval));
+  res.end(JSON.stringify(runScript(req.body.eval)));
 });
 
 app.get("/facebook", function(req, res) {
