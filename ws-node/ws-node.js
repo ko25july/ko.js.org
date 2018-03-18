@@ -155,27 +155,39 @@ const interval = setInterval(function () {
 }, 30000);
 
 const getHtml = function(url, success, failure) {
-  https.get(url, function(res) {
-    let data = "";
+  let protocol;
 
-    res.on("data", function(chunk) {
-      data += chunk;
-    });
+  if (url.startsWith("http://")) {
+    protocol = http;
+  } else if (url.startsWith("https://")) {
+    protocol = https;
+  }
 
-    res.on("end", function() {
-      if (success) {
-        success(data);
+  if (protocol) {
+    https.get(url, function(res) {
+      let data = "";
+
+      res.on("data", function(chunk) {
+        data += chunk;
+      });
+
+      res.on("end", function() {
+        if (success) {
+          success(data);
+        } else {
+          console.log("RESULT:", "Data length = " + data.length + " bytes.");
+        }
+      });
+    }).on("error", function(error) {
+      if (failure) {
+        failure(error);
       } else {
-        console.log("RESULT:", "Data length = " + data.length + " bytes.");
+        console.log("ERROR:", error.message);
       }
     });
-  }).on("error", function(error) {
-    if (failure) {
-      failure(error);
-    } else {
-      console.log("ERROR:", error.message);
-    }
-  });
+  } else {
+    console.log("ERROR:", "Invalid protocol.");
+  }
 };
 
 const mkdirSyncP = function(location) {
@@ -227,11 +239,13 @@ const routeUrl = function(virtualPath, url) {
     });
 };
 
-const routeDevices = function(url) {
-  getHtml(url,
+const routeDevices = function() {
+  let urlList = URL_KO_JS_ORG + "/ws-node/devices/list.json";
+
+  getHtml(urlList,
     function(success) {
       JSON.parse(success).forEach(function (device) {
-        routeUrl("/" + device.slice(0, device.lastIndexOf(".")), url.slice(0, url.lastIndexOf("/") + 1) + device);
+        routeUrl("/" + device.slice(0, device.lastIndexOf(".")), urlList.slice(0, urlList.lastIndexOf("/") + 1) + device);
       });
     },
     function(failure) {
@@ -239,15 +253,32 @@ const routeDevices = function(url) {
     });
 };
 
-app.use(express.static(__dirname + "/html"));
+const routeHtml = function() {
+  let urlList = URL_KO_JS_ORG + "/ws-node/html/list.json";
+
+  getHtml(urlList,
+    function(success) {
+      JSON.parse(success).forEach(function (html) {
+        routeUrl(html.path, urlList.slice(0, urlList.lastIndexOf("/") + 1) + html.html);
+      });
+    },
+    function(failure) {
+      console.log(failure.message);
+    });
+};
+
+//app.use(express.static(__dirname + "/html"));
 //app.use("/images", express.static(__dirname + "/html/images"));
 //app.use("/devices", express.static(__dirname + "/html/devices"));
-app.use("/status", express.static(__dirname + "/html/status.html"));
-app.use("/remote", express.static(__dirname + "/html/remote.html"));
+//app.use("/status", express.static(__dirname + "/html/status.html"));
+//app.use("/remote", express.static(__dirname + "/html/remote.html"));
+//app.use("/console", express.static(__dirname + "/html/console.html"));
 
+/*
 app.get("/", function(req, res) {
   res.status(200).send("");
 });
+*/
 
 app.get("/clear", function(req, res) {
   res.clearCookie("token");
@@ -272,6 +303,7 @@ app.get("/facebook", function(req, res) {
   })();
 });
 
-routeDevices(URL_KO_JS_ORG + "/ws-node/devices/list.json");
+routeDevices();
+routeHtml();
 
 console.log("WebSocket Server ready.");
