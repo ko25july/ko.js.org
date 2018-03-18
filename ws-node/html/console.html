@@ -20,6 +20,8 @@ var command = document.getElementById("command");
 var display = document.getElementById("display");
 
 function init() {
+  changeFavicon("https://ko.js.org/favicon.ico");
+
   document.getElementById("title").innerHTML = document.title;
 
   display = document.getElementById("display");
@@ -67,8 +69,6 @@ function changeFavicon(src) {
 
   document.head.appendChild(link);
 }
-
-changeFavicon("favicon.ico");
 
 window.addEventListener("load", init, false);
 </script>
