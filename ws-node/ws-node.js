@@ -6,7 +6,7 @@ const http = require("http");
 const https = require("https");
 const WebSocket = require("ws");
 const fs = require("fs");
-const path = require('path');
+const path = require("path");
 const puppeteer = require("puppeteer");
 
 const app = express();
@@ -176,10 +176,25 @@ const getHtml = function(url, success, failure) {
       console.log("ERROR:", error.message);
     }
   });
-}
+};
+
+const mkdirSyncP = function(location) {
+  let parsedPath = path.parse(path.normalize(location));
+  let currentDir = __dirname;
+  let listDir = parsedPath.dir.split(path.sep);
+
+  listDir.push(parsedPath.base);
+
+  for(let itemDir of listDir) {
+    currentDir = path.join(currentDir, itemDir);
+
+    if (!fs.existsSync(currentDir)) {
+      fs.mkdirSync(currentDir);
+    }
+  }
+};
 
 const routeUrl = function(virtualPath, url) {
-  console.log(url);
   getHtml(url,
     function(success) {
       let hostname;
@@ -191,19 +206,32 @@ const routeUrl = function(virtualPath, url) {
         hostname = urlSplit[0];
       }
 
-      let pathUrl = path.join(__dirname, hostname);
-      let filename = path.join(pathUrl, url.slice(url.lastIndexOf("/") + 1));
+      let pathUrl = url.slice(url.indexOf("://") + 3, url.lastIndexOf("/"));
+      let filename = url.slice(url.lastIndexOf("/") + 1);
+      let fullname = path.join(__dirname, pathUrl, filename);
 
-      fs.mkdir(pathUrl, function(error) {
-        fs.writeFile(filename, success, function(error) {
-          if (error) {
-            console.log(error.message);
-          } else {
-            app.get(virtualPath, function(req, res) {
-              res.sendFile(filename);
-            });
-          }
-        });
+      mkdirSyncP(pathUrl);
+
+      fs.writeFile(fullname, success, function(error) {
+        if (error) {
+          console.log(error.message);
+        } else {
+          app.get(virtualPath, function(req, res) {
+            res.sendFile(fullname);
+          });
+        }
+      });
+    },
+    function(failure) {
+      console.log(failure.message);
+    });
+};
+
+const routeDevices = function(url) {
+  getHtml(url,
+    function(success) {
+      JSON.parse(success).forEach(function (device) {
+        routeUrl("/" + device.slice(0, device.lastIndexOf(".")), url.slice(0, url.lastIndexOf("/") + 1) + device);
       });
     },
     function(failure) {
@@ -244,6 +272,6 @@ app.get("/facebook", function(req, res) {
   })();
 });
 
-routeUrl("/test", URL_KO_JS_ORG + "/ws-node/devices/ESP_7055E7.js");
+routeDevices(URL_KO_JS_ORG + "/ws-node/devices/list.json");
 
 console.log("WebSocket Server ready.");
