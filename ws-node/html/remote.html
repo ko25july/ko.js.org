@@ -8,7 +8,7 @@
 <body>
 
 <div style="width:100%; text-align: center;">
-  <div style="width: 235px; height: 560px; display: inline-block; background: url('/images/Switch_235x560.jpg') no-repeat;">
+  <div style="width: 235px; height: 560px; display: inline-block; background: url('https://ko.js.org/images/switch_235x560.jpg') no-repeat;">
     <div id="statusTop" style="left: -1px; top: -1px; position: relative; font-size: 40px;">&#11044;</div>
     <div style="left: 56px; top: 55px; width: 122px; position: relative; opacity: 1.0;">
       <div style="height: 100px; background-color: rgb(255, 255, 0); border-radius: 10px; opacity: 0.0;" id="switchUp" onclick="onSwitchUp();"></div>
@@ -33,6 +33,8 @@ var token;
 var websocket;
 
 function init() {
+  changeFavicon("https://ko.js.org/favicon.ico");
+
   switchUp = document.getElementById("switchUp");
   switchStop = document.getElementById("switchStop");
   switchDown = document.getElementById("switchDown");
@@ -181,6 +183,20 @@ function statusInterval() {
   }
 
   statusBottom.style.color = statusTop.style.color;
+}
+
+function changeFavicon(src) {
+  var link = document.createElement("link");
+  link.id = "dynamic-favicon";
+  link.rel = "icon";
+  link.href = src + "?=" + Date.now();
+
+  var oldLink = document.getElementById("dynamic-favicon");
+  if (oldLink) {
+    document.head.removeChild(oldLink);
+  }
+
+  document.head.appendChild(link);
 }
 
 window.addEventListener("load", init, false);
