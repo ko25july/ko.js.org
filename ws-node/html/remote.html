@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Remote Switch</title>
+  </head>
+<body>
+
+<div style="width:100%; text-align: center;">
+  <div style="width: 235px; height: 560px; display: inline-block; background: url('/images/Switch_235x560.jpg') no-repeat;">
+    <div id="statusTop" style="left: -1px; top: -1px; position: relative; font-size: 40px;">&#11044;</div>
+    <div style="left: 56px; top: 55px; width: 122px; position: relative; opacity: 1.0;">
+      <div style="height: 100px; background-color: rgb(255, 255, 0); border-radius: 10px; opacity: 0.0;" id="switchUp" onclick="onSwitchUp();"></div>
+      <div style="height: 24px;"></div>
+      <div style="height: 100px; background-color: rgb(255, 0, 0); border-radius: 10px; opacity: 0.0;" id="switchStop" onclick="onSwitchStop();"></div>
+      <div style="height: 24px;"></div>
+      <div style="height: 100px; background-color: rgb(255, 255, 0); border-radius: 10px; opacity: 0.0;" id="switchDown" onclick="onSwitchDown();"></div>
+    </div>
+    <div id="statusBottom" style="left: 0px; top: 103px; position: relative; font-size: 40px;">&#11044;</div>
+  </div>
+</div>
+
+<script language="javascript" type="text/javascript">
+var switchUp;
+var switchStop;
+var switchDown;
+var statusTop;
+var statusBottom;
+var statusBlink;
+var statusDevice;
+var token;
+var websocket;
+
+function init() {
+  switchUp = document.getElementById("switchUp");
+  switchStop = document.getElementById("switchStop");
+  switchDown = document.getElementById("switchDown");
+  statusTop = document.getElementById("statusTop");
+  statusBottom = document.getElementById("statusBottom");
+
+  connect();
+  setInterval(statusInterval, 1000);
+}
+
+function parseCookies(cookie) {
+  var list = {};
+  var cookies = cookie || document.cookie;
+
+  cookies && cookies.split(";").forEach(function (cookie) {
+    var parts = cookie.split("=");
+    list[parts.shift().trim()] = decodeURI(parts.join("="));
+  });
+
+  return list;
+}
+
+function mergeCookies(list) {
+  var cookies = [];
+
+  for(var i in list) {
+    cookies.push([i + "=" + list[i]]);
+  }
+
+  return cookies.join("; ");
+}
+
+function deleteCookie(name) {
+  document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+}
+
+function onOpen(event) {
+  console.log("STATUS:", "CONNECTED");
+  send("Client remote connected.");
+
+  if (websocket.message) {
+    send(websocket.message);
+    delete websocket.message;
+  }
+}
+
+function onClose(event) {
+  console.log("STATUS:", "DISCONNECTED");
+  statusDevice = false;
+}
+
+function onMessage(event) {
+  console.log("MESSAGE:", event.data);
+  var msgJSON = JSON.parse(event.data);
+
+  if (msgJSON) {
+    if (msgJSON.online === token) {
+      statusDevice = true;
+    } else if (msgJSON.offline === token) {
+      statusDevice = false;
+    }
+  }
+}
+
+function onError(event) {
+  console.log("ERROR:", event.data);
+}
+
+function connect(message) {
+  var cookies = parseCookies();
+
+  if (!cookies.token) {
+    token = prompt("กำหนดรหัสความปลอดภัย");
+
+    if (token) {
+      var now = new Date();
+      now.setFullYear(now.getFullYear() + 1);
+      document.cookie = "token=" + token + "; expires=" + now.toUTCString() + ";";
+    } else {
+      deleteCookie("token");
+    }
+  } else {
+    token = cookies.token;
+  }
+
+  websocket = new WebSocket(location.origin.replace(/^http/, "ws"));
+  websocket.onopen = function(event) { onOpen(event) };
+  websocket.onclose = function(event) { onClose(event) };
+  websocket.onmessage = function(event) { onMessage(event) };
+  websocket.onerror = function(event) { onError(event) };
+  websocket.message = message;
+}
+
+function send(message) {
+  if (typeof(websocket) === "undefined" || websocket.readyState === WebSocket.CLOSED) {
+    connect(message);
+  } else {
+    if (typeof(message) === "string") {
+      message = { message: message };
+    }
+
+    message = JSON.stringify(message);
+    console.log("SEND:", message);
+    websocket.send(message);
+  }
+}
+
+function onSwitchUp() {
+  send("SWITCH_UP");
+  fadeOut(switchUp);
+}
+
+function onSwitchStop() {
+  send("SWITCH_STOP");
+  fadeOut(switchStop);
+}
+
+function onSwitchDown() {
+  send("SWITCH_DOWN");
+  fadeOut(switchDown);
+}
+
+function fadeOut(element) {
+  element.style.opacity = 1.0;
+
+  var timer = setInterval(function () {
+    if (element.style.opacity <= 0.1) {
+      clearInterval(timer);
+    }
+
+    element.style.opacity -= 0.1;
+  }, 50);
+}
+
+function statusInterval() {
+  statusBlink = !statusBlink;
+
+  if (statusBlink) {
+    if (statusDevice) {
+      statusTop.style.color = "cyan";
+    } else {
+      statusTop.style.color = "red";
+    }
+  } else {
+    statusTop.style.color = "";
+  }
+
+  statusBottom.style.color = statusTop.style.color;
+}
+
+window.addEventListener("load", init, false);
+</script>
+
+</body>
+
+</html>
