@@ -179,6 +179,7 @@ const getHtml = function(url, success, failure) {
 }
 
 const routeUrl = function(virtualPath, url) {
+  console.log(url);
   getHtml(url,
     function(success) {
       let hostname;
