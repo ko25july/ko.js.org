@@ -38,8 +38,9 @@ function init() {
         printToDisplay(this.responseText, "green");
       };
 
-      xmlhttp.open("GET", "/command?eval=" + command.value);
-      xmlhttp.send();
+      xmlhttp.open("POST", "/command");
+      xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xmlhttp.send("eval=" + command.value);
       command.value = "";
     } else if (k.keyCode === "\n".charCodeAt()) { // Ctrl + Enter
       k.preventDefault();
