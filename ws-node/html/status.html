@@ -18,6 +18,8 @@ var token;
 var websocket;
 
 function init() {
+  changeFavicon("https://ko.js.org/favicon.ico");
+
   document.getElementById("title").innerHTML = document.title;
 
   display = document.getElementById("display");
@@ -117,6 +119,20 @@ function printToDisplay(message) {
   pre.style.wordWrap = "break-word";
   pre.innerHTML = message;
   display.insertBefore(pre, display.firstChild);
+}
+
+function changeFavicon(src) {
+  var link = document.createElement("link");
+  link.id = "dynamic-favicon";
+  link.rel = "icon";
+  link.href = src + "?=" + Date.now();
+
+  var oldLink = document.getElementById("dynamic-favicon");
+  if (oldLink) {
+    document.head.removeChild(oldLink);
+  }
+
+  document.head.appendChild(link);
 }
 
 window.addEventListener("load", init, false);
