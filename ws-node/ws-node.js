@@ -15,62 +15,6 @@ const port = process.env.PORT || 80;
 server.listen(port);
 console.log("HTTP Server listening on %d.", port);
 
-const getHtml = function(url, success, failure) {
-  https.get(url, function(res) {
-    let data = "";
-
-    res.on("data", function(chunk) {
-      data += chunk;
-    });
-
-    res.on("end", function() {
-      if (success) {
-        success(data);
-      } else {
-        console.log("RESULT:", "Data length = " + data.length + " bytes.");
-      }
-    });
-  }).on("error", function(error) {
-    if (failure) {
-      failure(error);
-    } else {
-      console.log("ERROR:", error.message);
-    }
-  });
-}
-
-const routeUrl = function(virtualPath, url) {
-  getHtml(url,
-    function(success) {
-      let hostname;
-      let urlSplit = url.split("://");
-
-      if (urlSplit.length > 1) {
-        hostname = urlSplit[1].split("/")[0];
-      } else {
-        hostname = urlSplit[0];
-      }
-
-      let pathUrl = path.join(__dirname, hostname);
-      let filename = path.join(pathUrl, url.slice(url.lastIndexOf("/") + 1));
-
-      fs.mkdir(pathUrl, function(error) {
-        fs.writeFile(filename, success, function(error) {
-          if (error) {
-            console.log(error.message);
-          } else {
-            app.get(virtualPath, function(req, res) {
-              res.sendFile(filename);
-            });
-          }
-        });
-      });
-    },
-    function(failure) {
-      console.log(failure.message);
-    });
-};
-
 const runScript = function(script) {
   let result;
 
@@ -102,7 +46,7 @@ const wss = new WebSocket.Server({
   verifyClient: function (info, cb) {
     let cookies = parseCookies(info.req);
     if (cookies && cookies.token && info.req.headers.origin && info.req.headers.origin.indexOf(info.req.headers.host === "localhost" ? info.req.headers.host : HOST_HEROKU) > -1) {
-      fs.access(__dirname + "/html/devices/" + cookies.token + ".js", function (error) { cb(!error); });
+      fs.access(__dirname + "/devices/" + cookies.token + ".js", function (error) { cb(!error); });
     } else {
       cb(false);
     }
@@ -210,6 +154,62 @@ const interval = setInterval(function () {
   });
 }, 30000);
 
+const getHtml = function(url, success, failure) {
+  https.get(url, function(res) {
+    let data = "";
+
+    res.on("data", function(chunk) {
+      data += chunk;
+    });
+
+    res.on("end", function() {
+      if (success) {
+        success(data);
+      } else {
+        console.log("RESULT:", "Data length = " + data.length + " bytes.");
+      }
+    });
+  }).on("error", function(error) {
+    if (failure) {
+      failure(error);
+    } else {
+      console.log("ERROR:", error.message);
+    }
+  });
+}
+
+const routeUrl = function(virtualPath, url) {
+  getHtml(url,
+    function(success) {
+      let hostname;
+      let urlSplit = url.split("://");
+
+      if (urlSplit.length > 1) {
+        hostname = urlSplit[1].split("/")[0];
+      } else {
+        hostname = urlSplit[0];
+      }
+
+      let pathUrl = path.join(__dirname, hostname);
+      let filename = path.join(pathUrl, url.slice(url.lastIndexOf("/") + 1));
+
+      fs.mkdir(pathUrl, function(error) {
+        fs.writeFile(filename, success, function(error) {
+          if (error) {
+            console.log(error.message);
+          } else {
+            app.get(virtualPath, function(req, res) {
+              res.sendFile(filename);
+            });
+          }
+        });
+      });
+    },
+    function(failure) {
+      console.log(failure.message);
+    });
+};
+
 app.use(express.static(__dirname + "/html"));
 //app.use("/images", express.static(__dirname + "/html/images"));
 //app.use("/devices", express.static(__dirname + "/html/devices"));
@@ -243,6 +243,6 @@ app.get("/facebook", function(req, res) {
   })();
 });
 
-routeUrl("/test", URL_KO_JS_ORG + "/ESP_7055E7.js");
+routeUrl("/test", URL_KO_JS_ORG + "/ws-node/devices/ESP_7055E7.js");
 
 console.log("WebSocket Server ready.");
