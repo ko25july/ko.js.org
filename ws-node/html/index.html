@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>WebSocket Server</title>
+  </head>
+<body>
+
+<script>
+
+function init() {
+  changeFavicon("https://ko.js.org/favicon.ico");
+}
+
+function changeFavicon(src) {
+  var link = document.createElement("link");
+  link.id = "dynamic-favicon";
+  link.rel = "icon";
+  link.href = src + "?=" + Date.now();
+
+  var oldLink = document.getElementById("dynamic-favicon");
+  if (oldLink) {
+    document.head.removeChild(oldLink);
+  }
+
+  document.head.appendChild(link);
+}
+
+window.addEventListener("load", init, false);
+</script>
+
+</body>
+
+</html>
