@@ -39,8 +39,9 @@ function init() {
       };
 
       xmlhttp.open("POST", "/command");
-      xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xmlhttp.send("eval=" + command.value);
+      xmlhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+      xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xmlhttp.send("eval=" + encodeURIComponent(command.value));
       command.value = "";
     } else if (k.keyCode === "\n".charCodeAt()) { // Ctrl + Enter
       k.preventDefault();
