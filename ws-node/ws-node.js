@@ -1,4 +1,4 @@
-module.exports = function() {
+module.exports.ws-node = function() {
   console.log("This is a message from the demo package");
   const HOST_HEROKU = "ws-node.herokuapp.com";
   const URL_KO_JS_ORG = "https://ko.js.org";
