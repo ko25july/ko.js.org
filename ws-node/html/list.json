@@ -1,18 +1,18 @@
 [
   {
     "path": "/",
-    "html": "index.html"
+    "html": "/ws-node/html/index.html"
   },
   {
     "path": "/status",
-    "html": "status.html"
+    "html": "/ws-node/html/status.html"
   },
   {
     "path": "/remote",
-    "html": "remote.html"
+    "html": "/ws-node/html/remote.html"
   },
   {
     "path": "/console",
-    "html": "console.html"
+    "html": "/ws-node/html/console.html"
   }
 ]
