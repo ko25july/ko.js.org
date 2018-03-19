@@ -68,11 +68,11 @@ function onClose(event) {
 }
 
 function onMessage(event) {
-  printToDisplay("<span style=\"color: red;\">MESSAGE: " + event.data + "</span>");
+  printToDisplay("<span style=\"color: green;\">MESSAGE: " + event.data + "</span>");
 }
 
 function onError(event) {
-  printToDisplay("<span style=\"color: red;\">ERROR: " + event.data + "</span>");
+  printToDisplay("<span style=\"color: green;\">ERROR: " + event.data + "</span>");
 }
 
 function connect(message) {
