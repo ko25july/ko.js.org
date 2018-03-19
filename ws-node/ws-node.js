@@ -296,7 +296,7 @@ app.get("/facebook", function(req, res) {
   })();
 });
 
-routeHtml(URL_KO_JS_ORG + "/ws-node/device/list.json");
+routeHtml(URL_KO_JS_ORG + "/ws-node/devices/list.json");
 routeHtml(URL_KO_JS_ORG + "/ws-node/html/list.json");
 
 console.log("WebSocket Server ready.");
