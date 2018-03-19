@@ -155,17 +155,17 @@ const interval = setInterval(function () {
   });
 }, 30000);
 
-const getHtml = function(url, success, failure) {
+const getHtml = function(urlHtml, success, failure) {
   let protocol;
 
-  if (url.startsWith("http://")) {
+  if (urlHtml.startsWith("http://")) {
     protocol = http;
-  } else if (url.startsWith("https://")) {
+  } else if (urlHtml.startsWith("https://")) {
     protocol = https;
   }
 
   if (protocol) {
-    https.get(url, function(res) {
+    https.get(urlHtml, function(res) {
       let data = "";
 
       res.on("data", function(chunk) {
@@ -207,11 +207,11 @@ const mkdirSyncP = function(location) {
   }
 };
 
-const routeUrl = function(virtualPath, url) {
-  getHtml(url,
+const routeUrl = function(virtualPath, urlHtml) {
+  getHtml(urlHtml,
     function(success) {
       let hostname;
-      let urlSplit = url.split("://");
+      let urlSplit = urlHtml.split("://");
 
       if (urlSplit.length > 1) {
         hostname = urlSplit[1].split("/")[0];
@@ -219,8 +219,8 @@ const routeUrl = function(virtualPath, url) {
         hostname = urlSplit[0];
       }
 
-      let pathUrl = url.slice(url.indexOf("://") + 3, url.lastIndexOf("/"));
-      let filename = url.slice(url.lastIndexOf("/") + 1);
+      let pathUrl = urlHtml.slice(urlHtml.indexOf("://") + 3, urlHtml.lastIndexOf("/"));
+      let filename = urlHtml.slice(urlHtml.lastIndexOf("/") + 1);
       let fullname = path.join(__dirname, pathUrl, filename);
 
       mkdirSyncP(pathUrl);
@@ -240,23 +240,7 @@ const routeUrl = function(virtualPath, url) {
     });
 };
 
-const routeDevices = function() {
-  let urlList = URL_KO_JS_ORG + "/ws-node/devices/list.json";
-
-  getHtml(urlList,
-    function(success) {
-      JSON.parse(success).forEach(function (device) {
-        routeUrl("/" + device.slice(0, device.lastIndexOf(".")), urlList.slice(0, urlList.lastIndexOf("/") + 1) + device);
-      });
-    },
-    function(failure) {
-      console.log(failure.message);
-    });
-};
-
-const routeHtml = function() {
-  let urlList = URL_KO_JS_ORG + "/ws-node/html/list.json";
-
+const routeHtml = function(urlList) {
   getHtml(urlList,
     function(success) {
       JSON.parse(success).forEach(function (html) {
@@ -312,7 +296,7 @@ app.get("/facebook", function(req, res) {
   })();
 });
 
-routeDevices();
-routeHtml();
+routeHtml(URL_KO_JS_ORG + "/ws-node/device/list.json");
+routeHtml(URL_KO_JS_ORG + "/ws-node/html/list.json");
 
 console.log("WebSocket Server ready.");
