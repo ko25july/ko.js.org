@@ -131,7 +131,7 @@ function send(message) {
     connect(message);
   } else {
     if (typeof(message) === "string") {
-      message = { "device": message };
+      message = { "message": message };
     }
 
     message = JSON.stringify(message);
@@ -141,17 +141,17 @@ function send(message) {
 }
 
 function onSwitchUp() {
-  send("console.log(\"SWITCH_UP\");");
+  send({ "device": "console.log(\"SWITCH_UP\");" });
   fadeOut(switchUp);
 }
 
 function onSwitchStop() {
-  send("console.log(\"SWITCH_STOP\");");
+  send({ "device": "console.log(\"SWITCH_STOP\");" });
   fadeOut(switchStop);
 }
 
 function onSwitchDown() {
-  send("console.log(\"SWITCH_DOWN\");");
+  send({ "device": "console.log(\"SWITCH_DOWN\");" });
   fadeOut(switchDown);
 }
 
