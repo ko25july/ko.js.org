@@ -75,9 +75,10 @@ function onOpen(event) {
   console.log("STATUS:", "CONNECTED");
   send("Client remote connected.");
 
-  if (websocket.message) {
-    send(websocket.message);
+  if (websocket.message && websocket.toDevice) {
+    send(websocket.message, toDevice);
     delete websocket.message;
+    delete websocket.toDevice;
   }
 }
 
@@ -103,7 +104,7 @@ function onError(event) {
   console.log("ERROR:", event.data);
 }
 
-function connect(message) {
+function connect(message, toDevice) {
   var cookies = parseCookies();
 
   if (!cookies.token) {
@@ -126,14 +127,19 @@ function connect(message) {
   websocket.onmessage = function (event) { onMessage(event) };
   websocket.onerror = function (event) { onError(event) };
   websocket.message = message;
+  websocket.toDevice = toDevice;
 }
 
-function send(message) {
+function send(message, toDevice) {
   if (typeof(websocket) === "undefined" || websocket.readyState === WebSocket.CLOSED) {
-    connect(message);
+    connect(message, toDevice);
   } else {
     if (typeof(message) === "string") {
-      message = { "device": message };
+      if (toDevice) {
+        message = { "device": "COMMAND", "message": message };
+      } else {
+        message = { "message": message };
+      }
     }
 
     message = JSON.stringify(message);
