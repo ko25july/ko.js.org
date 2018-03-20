@@ -26,14 +26,14 @@ function init() {
 
   display = document.getElementById("display");
 
-  command.onkeypress = function(k) {
+  command.onkeypress = function (k) {
     if (k.keyCode === "\r".charCodeAt()) { // New Line
       k.preventDefault();
       console.log("Command: " + command.value);
       printToDisplay(command.value, "blue");
 
       var xmlhttp = new XMLHttpRequest();
-      xmlhttp.onload = function() {
+      xmlhttp.onload = function () {
         console.log("Response: " + this.responseText);
         printToDisplay(this.responseText, "green");
       };
