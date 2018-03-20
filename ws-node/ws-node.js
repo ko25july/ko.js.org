@@ -75,6 +75,7 @@ wss.on("connection", function (ws, req) {
 
       if (msgJSON.server) {
         msgJSON.message = runScript(msgJSON.server);
+        console.log("WebSocket result [" + this.ip + "]: " + msgJSON.message);
       }
 
       if (msgJSON.device === "ONLINE") {
@@ -86,10 +87,8 @@ wss.on("connection", function (ws, req) {
       message = JSON.stringify(msgJSON);
     }
 
-    console.log("WebSocket result [" + this.ip + "]: " + message);
-
     wss.clients.forEach(function (client) {
-      if (client !== ws && client.readyState === WebSocket.OPEN) {
+      if ((!client.isDevice || !ws.isDevice) && client.readyState === WebSocket.OPEN) {
         try {
           client.send(message);
         } catch (error) {
