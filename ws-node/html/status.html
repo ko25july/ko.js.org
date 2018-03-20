@@ -42,7 +42,7 @@ function parseCookies(cookie) {
 function mergeCookies(list) {
   var cookies = [];
 
-  for(var i in list) {
+  for (var i in list) {
     cookies.push([i + "=" + list[i]]);
   }
 
@@ -93,10 +93,10 @@ function connect(message) {
   }
 
   websocket = new WebSocket(location.origin.replace(/^http/, "ws"));
-  websocket.onopen = function(event) { onOpen(event) };
-  websocket.onclose = function(event) { onClose(event) };
-  websocket.onmessage = function(event) { onMessage(event) };
-  websocket.onerror = function(event) { onError(event) };
+  websocket.onopen = function (event) { onOpen(event) };
+  websocket.onclose = function (event) { onClose(event) };
+  websocket.onmessage = function (event) { onMessage(event) };
+  websocket.onerror = function (event) { onError(event) };
   websocket.message = message;
 }
 
@@ -105,7 +105,7 @@ function send(message) {
     connect(message);
   } else {
     if (typeof(message) === "string") {
-      message = { message: message };
+      message = { "message": message };
     }
 
     message = JSON.stringify(message);
