@@ -21,7 +21,15 @@
       msgJSON = JSON.parse(message);
 
       if (msgJSON.device) {
-        this.send(JSON.stringify({ "message": eval(msgJSON.device) }));
+        var result = eval(msgJSON.device);
+
+        if (!result) {
+          result = "\"" + typeof(result) + "\"";
+        }
+
+        this.send(JSON.stringify({ "message": result }));
+
+        delete result;
       }
     } catch (error) {
       this.send(JSON.stringify({ "error": error.message }));
