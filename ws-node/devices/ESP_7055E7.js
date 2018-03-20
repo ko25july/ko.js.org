@@ -24,7 +24,7 @@
         var result = eval(msgJSON.device);
 
         if (!result) {
-          result = "\"" + typeof(result) + "\"";
+          result = typeof(result);
         }
 
         this.send(JSON.stringify({ "message": result }));
