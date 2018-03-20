@@ -60,7 +60,7 @@ function parseCookies(cookie) {
 function mergeCookies(list) {
   var cookies = [];
 
-  for(var i in list) {
+  for (var i in list) {
     cookies.push([i + "=" + list[i]]);
   }
 
@@ -90,10 +90,10 @@ function onMessage(event) {
   console.log("MESSAGE:", event.data);
   var msgJSON = JSON.parse(event.data);
 
-  if (msgJSON) {
-    if (msgJSON.online === token) {
+  if (msgJSON.device) {
+    if (msgJSON.device === "ONLINE") {
       statusDevice = true;
-    } else if (msgJSON.offline === token) {
+    } else if (msgJSON.device === "OFFLINE") {
       statusDevice = false;
     }
   }
@@ -121,10 +121,10 @@ function connect(message) {
   }
 
   websocket = new WebSocket(location.origin.replace(/^http/, "ws"));
-  websocket.onopen = function(event) { onOpen(event) };
-  websocket.onclose = function(event) { onClose(event) };
-  websocket.onmessage = function(event) { onMessage(event) };
-  websocket.onerror = function(event) { onError(event) };
+  websocket.onopen = function (event) { onOpen(event) };
+  websocket.onclose = function (event) { onClose(event) };
+  websocket.onmessage = function (event) { onMessage(event) };
+  websocket.onerror = function (event) { onError(event) };
   websocket.message = message;
 }
 
@@ -133,10 +133,7 @@ function send(message) {
     connect(message);
   } else {
     if (typeof(message) === "string") {
-      message = {
-        "device": token,
-        "message": message
-      };
+      message = { "device": message };
     }
 
     message = JSON.stringify(message);
