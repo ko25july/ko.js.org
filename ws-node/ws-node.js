@@ -71,15 +71,15 @@ wss.on("connection", function (ws, req) {
     try {
       let msgJSON = JSON.parse(message);
 
-      if (msgJSON.device) {
-        if (msgJSON.device === this.token) {
+      if (msgJSON.device === this.token) {
+        if (msgJSON.message === "ONLINE") {
           this.device = this.token;
           wss.devices[this.device] = this;
           message = { "online": this.device };
         } else if (wss.devices[this.token]) {
           wss.devices[this.token].send(JSON.stringify({
             "device": this.token,
-            "message": msgJSON.device
+            "message": msgJSON.message
           }));
           return;
         }
