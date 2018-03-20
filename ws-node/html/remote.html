@@ -133,7 +133,10 @@ function send(message) {
     connect(message);
   } else {
     if (typeof(message) === "string") {
-      message = { message: message };
+      message = {
+        "device": token,
+        "message": message
+      };
     }
 
     message = JSON.stringify(message);
@@ -143,17 +146,17 @@ function send(message) {
 }
 
 function onSwitchUp() {
-  send("SWITCH_UP");
+  send("console.log(\"SWITCH_UP\");");
   fadeOut(switchUp);
 }
 
 function onSwitchStop() {
-  send("SWITCH_STOP");
+  send("console.log(\"SWITCH_STOP\");");
   fadeOut(switchStop);
 }
 
 function onSwitchDown() {
-  send("SWITCH_DOWN");
+  send("console.log(\"SWITCH_DOWN\");");
   fadeOut(switchDown);
 }
 
