@@ -75,10 +75,9 @@ function onOpen(event) {
   console.log("STATUS:", "CONNECTED");
   send("Client remote connected.");
 
-  if (websocket.message && websocket.toDevice) {
-    send(websocket.message, toDevice);
+  if (websocket.message) {
+    send(websocket.message);
     delete websocket.message;
-    delete websocket.toDevice;
   }
 }
 
@@ -91,12 +90,10 @@ function onMessage(event) {
   console.log("MESSAGE:", event.data);
   var msgJSON = JSON.parse(event.data);
 
-  if (msgJSON.device) {
-    if (msgJSON.device === "ONLINE") {
-      statusDevice = true;
-    } else if (msgJSON.device === "OFFLINE") {
-      statusDevice = false;
-    }
+  if (msgJSON.device === "ONLINE") {
+    statusDevice = true;
+  } else if (msgJSON.device === "OFFLINE") {
+    statusDevice = false;
   }
 }
 
@@ -104,7 +101,7 @@ function onError(event) {
   console.log("ERROR:", event.data);
 }
 
-function connect(message, toDevice) {
+function connect(message) {
   var cookies = parseCookies();
 
   if (!cookies.token) {
@@ -127,19 +124,14 @@ function connect(message, toDevice) {
   websocket.onmessage = function (event) { onMessage(event) };
   websocket.onerror = function (event) { onError(event) };
   websocket.message = message;
-  websocket.toDevice = toDevice;
 }
 
-function send(message, toDevice) {
+function send(message) {
   if (typeof(websocket) === "undefined" || websocket.readyState === WebSocket.CLOSED) {
-    connect(message, toDevice);
+    connect(message);
   } else {
     if (typeof(message) === "string") {
-      if (toDevice) {
-        message = { "device": "COMMAND", "message": message };
-      } else {
-        message = { "message": message };
-      }
+      message = { "device": message };
     }
 
     message = JSON.stringify(message);
