@@ -20,8 +20,8 @@
     try {
       msgJSON = JSON.parse(message);
 
-      if (msgJSON.device === "COMMAND" && msgJSON.message) {
-        this.send(JSON.stringify({ "message": eval(msgJSON.message) }));
+      if (msgJSON.device) {
+        this.send(JSON.stringify({ "message": eval(msgJSON.device) }));
       }
     } catch (error) {
       this.send(JSON.stringify({ "error": error.message }));
