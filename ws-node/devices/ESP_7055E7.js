@@ -39,7 +39,7 @@
   });
 
   wsClient.on("close", function () {
-    console.log("WebSocket Client will retry in 60 seconds...");
+    console.log("WebSocket Client will retry in 30 seconds...");
     clearTimeout();
     setTimeout(function () {
       connectWebSocket(function (result) {
@@ -48,4 +48,6 @@
       });
     }, 30000);
   });
+
+  "WebSocket Client ready.";
 })();
