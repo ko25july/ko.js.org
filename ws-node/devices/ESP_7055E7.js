@@ -1,4 +1,4 @@
-(function () {
+(function() {
   var wsHost = initJSON.INIT.slice(initJSON.INIT.indexOf("://") + 3, initJSON.INIT.indexOf("/", initJSON.INIT.indexOf("://") + 3));
   var wsOrigin = initJSON.INIT.slice(0, initJSON.INIT.indexOf("/", initJSON.INIT.indexOf("://") + 3));
   var wsClient = new require("ws")(wsHost, {
@@ -8,13 +8,13 @@
     }
   });
 
-  wsClient.on("open", function () {
+  wsClient.on("open", function() {
     this.send(JSON.stringify({
       "device": "ONLINE"
     }));
   });
 
-  wsClient.on("message", function (message) {
+  wsClient.on("message", function(message) {
     var msgJSON;
 
     try {
@@ -38,12 +38,12 @@
     delete msgJSON;
   });
 
-  wsClient.on("close", function () {
+  wsClient.on("close", function() {
     if (wifi.getStatus().station === "connected") {
       console.log("WebSocket Client will retry in 30 seconds...");
       clearTimeout();
-      setTimeout(function () {
-        connectWebSocket(function (result) {
+      setTimeout(function() {
+        connectWebSocket(function(result) {
           console.log(result);
         });
       }, 30000);
