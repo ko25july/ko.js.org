@@ -49,7 +49,7 @@ function parseCookies(cookie) {
   var list = {};
   var cookies = cookie || document.cookie;
 
-  cookies && cookies.split(";").forEach(function (cookie) {
+  cookies && cookies.split(";").forEach(function(cookie) {
     var parts = cookie.split("=");
     list[parts.shift().trim()] = decodeURI(parts.join("="));
   });
@@ -119,10 +119,10 @@ function connect(message) {
   }
 
   websocket = new WebSocket(location.origin.replace(/^http/, "ws"));
-  websocket.onopen = function (event) { onOpen(event) };
-  websocket.onclose = function (event) { onClose(event) };
-  websocket.onmessage = function (event) { onMessage(event) };
-  websocket.onerror = function (event) { onError(event) };
+  websocket.onopen = function(event) { onOpen(event) };
+  websocket.onclose = function(event) { onClose(event) };
+  websocket.onmessage = function(event) { onMessage(event) };
+  websocket.onerror = function(event) { onError(event) };
   websocket.message = message;
 }
 
@@ -158,7 +158,7 @@ function onSwitchDown() {
 function fadeOut(element) {
   element.style.opacity = 1.0;
 
-  var timer = setInterval(function () {
+  var timer = setInterval(function() {
     if (element.style.opacity <= 0.1) {
       clearInterval(timer);
     }
