@@ -39,15 +39,16 @@
   });
 
   wsClient.on("close", function () {
-    console.log("WebSocket Client will retry in 30 seconds...");
-    clearTimeout();
-    setTimeout(function () {
-      connectWebSocket(function (result) {
-        console.log("WebSocket Client ready.");
-        console.log("RESULT:", result);
-      });
-    }, 30000);
+    if (wifi.getStatus().station === "connected") {
+      console.log("WebSocket Client will retry in 30 seconds...");
+      clearTimeout();
+      setTimeout(function () {
+        connectWebSocket(function (result) {
+          console.log(result);
+        });
+      }, 30000);
+    }
   });
 
-  "WebSocket Client ready.";
+  return "WebSocket Client ready.";
 })();
