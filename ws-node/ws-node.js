@@ -91,10 +91,11 @@ wss.on("connection", function(ws, req) {
     }
 
     wss.clients.forEach(function(client) {
-      console.log("client.isDevice:", client.isDevice);
-      console.log("ws.isDevice:", ws.isDevice);
-
       if (((!client.isDevice && ws.isDevice) || !ws.isDevice) && client.readyState === WebSocket.OPEN) {
+        console.log("client.isDevice:", client.isDevice);
+        console.log("ws.isDevice:", ws.isDevice);
+        console.log("this.isDevice:", this.isDevice);
+
         try {
           client.send(message);
         } catch (error) {
