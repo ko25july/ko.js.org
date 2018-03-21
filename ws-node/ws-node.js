@@ -149,7 +149,7 @@ const interval = setInterval(function () {
     ws.isAlive = false;
     ws.ping();
   });
-}, 30000);
+}, 10000);
 
 const getHtml = function (urlHtml, success, failure) {
   let protocol;
