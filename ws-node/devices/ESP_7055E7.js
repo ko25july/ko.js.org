@@ -15,6 +15,8 @@
   });
 
   wsClient.on("message", function(message) {
+    console.log(message);
+
     var msgJSON;
 
     try {
