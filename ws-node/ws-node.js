@@ -54,6 +54,8 @@ const wss = new WebSocket.Server({
   }
 });
 
+wss.devices = {};
+
 wss.on("connection", function (ws, req) {
   ws.token = parseCookies(req).token;
   ws.ip = req.connection.remoteAddress;
@@ -79,6 +81,7 @@ wss.on("connection", function (ws, req) {
       }
 
       if (msgJSON.device === "ONLINE") {
+        wss.devices[this.token] = this;
         this.isDevice = true;
       }
     } catch (error) {
@@ -102,6 +105,8 @@ wss.on("connection", function (ws, req) {
     console.log("WebSocket close. [" + this.ip + "]");
 
     if (this.isDevice) {
+      delete wss.devices[this.token];
+
       wss.clients.forEach(function (client) {
         if (client !== ws && client.readyState === WebSocket.OPEN) {
           client.send(JSON.stringify({ "device": "OFFLINE" }));
@@ -115,22 +120,27 @@ wss.on("connection", function (ws, req) {
   ws.on("error", function (error) {
     console.log("WebSocket error. [" + this.ip + "]: " + error.message);
   });
+
+  if (wss.devices[ws.token]) {
+    ws.send(JSON.stringify({ "device": "ONLINE" }));
+  } else {
+    ws.send(JSON.stringify({ "device": "OFFLINE" }));
+  }
 });
 
 const interval = setInterval(function () {
   wss.clients.forEach(function (ws) {
     if (ws.isAlive === false) {
-      if (ws.device) {
+      if (ws.isDevice) {
+        delete wss.devices[ws.token];
+
         wss.clients.forEach(function (client) {
           if (client !== ws && client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({
-              "device": ws.device,
-              "message": "XX"
-            }));
+            client.send(JSON.stringify({ "device": "OFFLINE" }));
           }
         });
 
-        delete ws.device;
+        delete ws.isDevice;
       }
 
       return ws.terminate();
