@@ -64,11 +64,11 @@ wss.on("connection", function(ws, req) {
   console.log("WebSocket open. [" + ws.ip + "]");
 
   ws.on("pong", function() {
-    this.isAlive = true;
+    ws.isAlive = true;
   });
 
   ws.on("message", function(message) {
-    console.log("WebSocket message [" + this.ip + "]: " + message);
+    console.log("WebSocket message [" + ws.ip + "]: " + message);
 
     let msgJSON;
 
@@ -77,12 +77,12 @@ wss.on("connection", function(ws, req) {
 
       if (msgJSON.server) {
         msgJSON.message = runScript(msgJSON.server);
-        console.log("WebSocket result [" + this.ip + "]: " + msgJSON.message);
+        console.log("WebSocket result [" + ws.ip + "]: " + msgJSON.message);
       }
 
       if (msgJSON.device === "ONLINE") {
-        wss.devices[this.token] = this;
-        this.isDevice = true;
+        wss.devices[ws.token] = this;
+        ws.isDevice = true;
       }
     } catch (error) {
       msgJSON = { "error": error.message };
@@ -91,11 +91,7 @@ wss.on("connection", function(ws, req) {
     }
 
     wss.clients.forEach(function(client) {
-      if (((!client.isDevice && ws.isDevice) || !ws.isDevice) && client.readyState === WebSocket.OPEN) {
-        console.log("client.isDevice:", client.isDevice);
-        console.log("ws.isDevice:", ws.isDevice);
-        console.log("this.isDevice:", this.isDevice);
-
+      if ((!client.isDevice || !ws.isDevice) && client.readyState === WebSocket.OPEN) {
         try {
           client.send(message);
         } catch (error) {
@@ -106,10 +102,10 @@ wss.on("connection", function(ws, req) {
   });
 
   ws.on("close", function() {
-    console.log("WebSocket close. [" + this.ip + "]");
+    console.log("WebSocket close. [" + ws.ip + "]");
 
-    if (this.isDevice) {
-      delete wss.devices[this.token];
+    if (ws.isDevice) {
+      delete wss.devices[ws.token];
 
       wss.clients.forEach(function(client) {
         if (client !== ws && client.readyState === WebSocket.OPEN) {
@@ -117,12 +113,12 @@ wss.on("connection", function(ws, req) {
         }
       });
 
-      delete this.isDevice;
+      delete ws.isDevice;
     }
   });
 
   ws.on("error", function(error) {
-    console.log("WebSocket error. [" + this.ip + "]: " + error.message);
+    console.log("WebSocket error. [" + ws.ip + "]: " + error.message);
   });
 
   if (wss.devices[ws.token]) {
