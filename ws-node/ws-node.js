@@ -16,7 +16,7 @@ const port = process.env.PORT || 80;
 server.listen(port);
 console.log("HTTP Server listening on %d.", port);
 
-const runScript = function (script) {
+const runScript = function(script) {
   let result;
 
   if (typeof(script) === "string") {
@@ -30,11 +30,11 @@ const runScript = function (script) {
   return result;
 };
 
-const parseCookies = function (request) {
+const parseCookies = function(request) {
   let list = {};
   let cookies = request.headers.cookie;
 
-  cookies && cookies.split(";").forEach(function (cookie) {
+  cookies && cookies.split(";").forEach(function(cookie) {
     let parts = cookie.split("=");
     list[parts.shift().trim()] = decodeURI(parts.join("="));
   });
@@ -44,10 +44,10 @@ const parseCookies = function (request) {
 
 const wss = new WebSocket.Server({
   server: server,
-  verifyClient: function (info, cb) {
+  verifyClient: function(info, cb) {
     let cookies = parseCookies(info.req);
     if (cookies && cookies.token && info.req.headers.origin && info.req.headers.origin.indexOf(info.req.headers.host === "localhost" ? info.req.headers.host : HOST_HEROKU) > -1) {
-      fs.access(__dirname + "/devices/" + cookies.token + ".js", function (error) { cb(!error); });
+      fs.access(__dirname + "/devices/" + cookies.token + ".js", function(error) { cb(!error); });
     } else {
       cb(false);
     }
@@ -56,18 +56,18 @@ const wss = new WebSocket.Server({
 
 wss.devices = {};
 
-wss.on("connection", function (ws, req) {
+wss.on("connection", function(ws, req) {
   ws.token = parseCookies(req).token;
   ws.ip = req.connection.remoteAddress;
   ws.isAlive = true;
 
   console.log("WebSocket open. [" + ws.ip + "]");
 
-  ws.on("pong", function () {
+  ws.on("pong", function() {
     this.isAlive = true;
   });
 
-  ws.on("message", function (message) {
+  ws.on("message", function(message) {
     console.log("WebSocket message [" + this.ip + "]: " + message);
 
     let msgJSON;
@@ -90,7 +90,7 @@ wss.on("connection", function (ws, req) {
       message = JSON.stringify(msgJSON);
     }
 
-    wss.clients.forEach(function (client) {
+    wss.clients.forEach(function(client) {
       if ((!client.isDevice || !ws.isDevice) && client.readyState === WebSocket.OPEN) {
         try {
           client.send(message);
@@ -101,13 +101,13 @@ wss.on("connection", function (ws, req) {
     });
   });
 
-  ws.on("close", function () {
+  ws.on("close", function() {
     console.log("WebSocket close. [" + this.ip + "]");
 
     if (this.isDevice) {
       delete wss.devices[this.token];
 
-      wss.clients.forEach(function (client) {
+      wss.clients.forEach(function(client) {
         if (client !== ws && client.readyState === WebSocket.OPEN) {
           client.send(JSON.stringify({ "device": "OFFLINE" }));
         }
@@ -117,7 +117,7 @@ wss.on("connection", function (ws, req) {
     }
   });
 
-  ws.on("error", function (error) {
+  ws.on("error", function(error) {
     console.log("WebSocket error. [" + this.ip + "]: " + error.message);
   });
 
@@ -128,13 +128,13 @@ wss.on("connection", function (ws, req) {
   }
 });
 
-const interval = setInterval(function () {
-  wss.clients.forEach(function (ws) {
+const interval = setInterval(function() {
+  wss.clients.forEach(function(ws) {
     if (ws.isAlive === false) {
       if (ws.isDevice) {
         delete wss.devices[ws.token];
 
-        wss.clients.forEach(function (client) {
+        wss.clients.forEach(function(client) {
           if (client !== ws && client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify({ "device": "OFFLINE" }));
           }
@@ -151,7 +151,7 @@ const interval = setInterval(function () {
   });
 }, 10000);
 
-const getHtml = function (urlHtml, success, failure) {
+const getHtml = function(urlHtml, success, failure) {
   let protocol;
 
   if (urlHtml.startsWith("http://")) {
@@ -161,21 +161,21 @@ const getHtml = function (urlHtml, success, failure) {
   }
 
   if (protocol) {
-    https.get(urlHtml, function (res) {
+    https.get(urlHtml, function(res) {
       let data = "";
 
-      res.on("data", function (chunk) {
+      res.on("data", function(chunk) {
         data += chunk;
       });
 
-      res.on("end", function () {
+      res.on("end", function() {
         if (success) {
           success(data);
         } else {
           console.log("RESULT:", "Data length = " + data.length + " bytes.");
         }
       });
-    }).on("error", function (error) {
+    }).on("error", function(error) {
       if (failure) {
         failure(error);
       } else {
@@ -187,7 +187,7 @@ const getHtml = function (urlHtml, success, failure) {
   }
 };
 
-const mkdirSyncP = function (location) {
+const mkdirSyncP = function(location) {
   let parsedPath = path.parse(path.normalize(location));
   let currentDir = __dirname;
   let listDir = parsedPath.dir.split(path.sep);
@@ -203,9 +203,9 @@ const mkdirSyncP = function (location) {
   }
 };
 
-const routeUrl = function (virtualPath, urlHtml) {
+const routeUrl = function(virtualPath, urlHtml) {
   getHtml(urlHtml,
-    function (success) {
+    function(success) {
       let hostname;
       let urlSplit = urlHtml.split("://");
 
@@ -221,29 +221,29 @@ const routeUrl = function (virtualPath, urlHtml) {
 
       mkdirSyncP(pathUrl);
 
-      fs.writeFile(fullname, success, function (error) {
+      fs.writeFile(fullname, success, function(error) {
         if (error) {
           console.log(error.message);
         } else {
-          app.get(virtualPath, function (req, res) {
+          app.get(virtualPath, function(req, res) {
             res.sendFile(fullname);
           });
         }
       });
     },
-    function (failure) {
+    function(failure) {
       console.log(failure.message);
     });
 };
 
-const routeHtml = function (urlList) {
+const routeHtml = function(urlList) {
   getHtml(urlList,
-    function (success) {
-      JSON.parse(success).forEach(function (html) {
+    function(success) {
+      JSON.parse(success).forEach(function(html) {
         routeUrl(html.path, urlList.slice(0, urlList.lastIndexOf("/") + 1) + html.html);
       });
     },
-    function (failure) {
+    function(failure) {
       console.log(failure.message);
     });
 };
@@ -259,22 +259,22 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 /*
-app.get("/", function (req, res) {
+app.get("/", function(req, res) {
   res.status(200).send("");
 });
 */
 
-app.get("/clear", function (req, res) {
+app.get("/clear", function(req, res) {
   res.clearCookie("token");
   res.redirect(302, "/");
 });
 
-app.post("/command", function (req, res) {
+app.post("/command", function(req, res) {
   res.setHeader("Content-Type", "text/plain");
   res.end(JSON.stringify(runScript(req.body.eval)));
 });
 
-app.get("/facebook", function (req, res) {
+app.get("/facebook", function(req, res) {
   (async() => {
       const browser = await puppeteer.launch({
           args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -282,7 +282,7 @@ app.get("/facebook", function (req, res) {
 
       const page = await browser.newPage();
       await page.goto("https://www.facebook.com");
-      await page.screenshot().then(function (buffer) {
+      await page.screenshot().then(function(buffer) {
           res.setHeader("Content-Disposition", "attachment;filename=\"" + "screenshot" + ".png\"");
           res.setHeader("Content-Type", "image/png");
           res.send(buffer)
