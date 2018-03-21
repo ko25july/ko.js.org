@@ -123,8 +123,6 @@ wss.on("connection", function(ws, req) {
 
   if (wss.devices[ws.token]) {
     ws.send(JSON.stringify({ "device": "ONLINE" }));
-  } else {
-    ws.send(JSON.stringify({ "device": "OFFLINE" }));
   }
 });
 
