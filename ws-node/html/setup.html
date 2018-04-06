@@ -1,0 +1,37 @@
+<html><head>
+<title>[ {HOST_NAME} ]</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon" />
+<meta name="viewport" content="width=device-width,initial-scale=1">
+</head><body>
+  <div style="display:table;width:100%;height:100%;">
+    <div style="display:table-cell;text-align:center;vertical-align:middle;">
+      <form action="/" method="POST" style="display:inline-block;">
+        <fieldset>
+          <legend>[ {HOST_NAME} ]</legend>
+          <div style="text-align:right;">
+            <div>
+              <label for="INIT">Initial URL Address: </label><input type="text" id="INIT" name="INIT" placeholder="Initial URL Address" value="{INIT}" autofocus>
+              <br><hr>
+              <label for="HOST_NAME">Host Name: </label><input type="text" id="HOST_NAME" name="HOST_NAME" placeholder="Host Name" value="{HOST_NAME}" autofocus>
+              <br><hr>
+              <label for="STA_SSID">Station SSID: </label><input type="text" id="STA_SSID" name="STA_SSID" placeholder="Station SSID" value="{STA_SSID}" autofocus>
+              <br><div style="height:8px;"></div>
+              <label for="STA_Password">Station Password: </label><input type="password" id="STA_Password" name="STA_Password" placeholder="Leave it blank if not changed" autofocus>
+              <br><hr>
+              <label for="AP_SSID">Access Point SSID: </label><input type="text" id="AP_SSID" name="AP_SSID" placeholder="Access Point SSID" value="{AP_SSID}" autofocus>
+              <br><div style="height:8px;"></div>
+              <label for="AP_Password">Access Point Password: </label><input type="password" id="AP_Password" name="AP_Password" placeholder="Leave it blank if not changed" autofocus>
+              <br><hr>
+              <label for="Password">Password: </label><input type="password" id="Password" name="Password" placeholder="Password" autofocus>
+              <br><div style="height:8px;"></div>
+              <label for="NewPassword">New Password: </label><input type="password" id="NewPassword" name="NewPassword" placeholder="Leave it blank if not changed" autofocus>
+              <br><hr>
+            </div>
+          </div>
+          <input type="submit" id="SUBMIT" name="SUBMIT" value="Update">
+          <br>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</body></html>
