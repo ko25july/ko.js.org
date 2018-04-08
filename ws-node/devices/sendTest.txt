@@ -1,3 +1,0 @@
-send({ device: "ESP_7055E7", message: "process.memory();", "id": Date.now() })
-
-send({ device: "ESP_7055E7", message: "httpHandle = function(req, res) { res.writeHead(200, { \"Content-Type\": \"text/html\" }); res.end(\"<h1 id=\\\"result\\\" style=\\\"text-align:center;\\\">Welcome to Espruino on ESP 8266</h1><script>setTimeout(function(){document.getElementById(\\\"result\\\").innerText=\\\"Hello EPS_7055E7\\\";}, 3000);</script>\"); };", "id": Date.now() })
