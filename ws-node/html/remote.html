@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Remote Switch</title>
+  </head>
+<body style="background-color: black;">
+
+<div style="text-align: center;">
+  <div style="width: 200px; height: 400px; display: inline-block; background-color: rgb(250, 250, 250); border: 5px solid rgb(150, 150, 150); border-radius: 10px;">
+    <div style="width: 200px; height: 400px; background-color: rgb(50, 250, 50); opacity: 0.0;" id="switchResult"></div>
+    <div style="top: -380px; position: relative;">
+      <div style="width: 130px; height: 108px; display: inline-block; background: url('https://ko.js.org/ws-node/html/images/switchup.png') no-repeat;"></div>
+      <div style="height: 15px;"></div>
+      <div style="width: 130px; height: 108px; display: inline-block; background: url('https://ko.js.org/ws-node/html/images/switchstop.png') no-repeat;"></div>
+      <div style="height: 15px;"></div>
+      <div style="width: 130px; height: 108px; display: inline-block; background: url('https://ko.js.org/ws-node/html/images/switchdown.png') no-repeat;"></div>
+    </div>
+    <div style="top: -746px; position: relative;">
+      <div style="width: 130px; height: 108px; display: inline-block; background-color: rgb(255, 255, 0); border-radius: 10px; opacity: 0.0;" id="switchUp" onclick="onSwitchUp();"></div>
+      <div style="height: 15px;"></div>
+      <div style="width: 130px; height: 108px; display: inline-block; background-color: rgb(255, 0, 0); border-radius: 10px; opacity: 0.0;" id="switchStop" onclick="onSwitchStop();"></div>
+      <div style="height: 15px;"></div>
+      <div style="width: 130px; height: 108px; display: inline-block; background-color: rgb(255, 255, 0); border-radius: 10px; opacity: 0.0;" id="switchDown" onclick="onSwitchDown();"></div>
+    </div>
+  </div>
+</div>
+
+<script language="javascript" type="text/javascript">
+var switchResult;
+var switchUp;
+var switchStop;
+var switchDown;
+var statusDevice;
+var token;
+var websocket;
+
+function init() {
+  changeFavicon("https://ko.js.org/ws-node/html/favicon.ico");
+
+  switchResult = document.getElementById("switchResult");
+  switchUp = document.getElementById("switchUp");
+  switchStop = document.getElementById("switchStop");
+  switchDown = document.getElementById("switchDown");
+  
+  connect();
+}
+
+function parseCookies(cookie) {
+  var list = {};
+  var cookies = cookie || document.cookie;
+
+  cookies && cookies.split(";").forEach(function(cookie) {
+    var parts = cookie.split("=");
+    list[parts.shift().trim()] = decodeURI(parts.join("="));
+  });
+
+  return list;
+}
+
+function mergeCookies(list) {
+  var cookies = [];
+
+  for (var i in list) {
+    cookies.push([i + "=" + list[i]]);
+  }
+
+  return cookies.join("; ");
+}
+
+function deleteCookie(name) {
+  document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+}
+
+function onOpen(event) {
+  console.log("STATUS:", "CONNECTED");
+  send("Client remote connected.");
+
+  if (websocket.message) {
+    send(websocket.message);
+    delete websocket.message;
+  }
+}
+
+function onClose(event) {
+  console.log("STATUS:", "DISCONNECTED");
+  statusDevice = false;
+}
+
+function onMessage(event) {
+  console.log("MESSAGE:", event.data);
+  var msgJSON = JSON.parse(event.data);
+
+  if (msgJSON.device === "ONLINE") {
+    statusDevice = true;
+  } else if (msgJSON.device === "OFFLINE") {
+    statusDevice = false;
+  } else if (msgJSON.message && msgJSON.message.startsWith("SWITCH_")) {
+    fadeOut(switchResult);
+  }
+}
+
+function onError(event) {
+  console.log("ERROR:", event.data);
+}
+
+function connect(message) {
+  var cookies = parseCookies();
+
+  if (!cookies.token) {
+    token = prompt("กำหนดรหัสความปลอดภัย");
+
+    if (token) {
+      var now = new Date();
+      now.setFullYear(now.getFullYear() + 1);
+      document.cookie = "token=" + token + "; expires=" + now.toUTCString() + ";";
+    } else {
+      deleteCookie("token");
+    }
+  } else {
+    token = cookies.token;
+  }
+
+  websocket = new WebSocket(location.origin.replace(/^http/, "ws"));
+  websocket.onopen = function(event) { onOpen(event) };
+  websocket.onclose = function(event) { onClose(event) };
+  websocket.onmessage = function(event) { onMessage(event) };
+  websocket.onerror = function(event) { onError(event) };
+  websocket.message = message;
+}
+
+function send(message) {
+  if (typeof(websocket) === "undefined" || websocket.readyState === WebSocket.CLOSED) {
+    connect(message);
+  } else {
+    if (typeof(message) === "string") {
+      message = { "message": message };
+    }
+
+    message = JSON.stringify(message);
+    console.log("SEND:", message);
+    websocket.send(message);
+  }
+}
+
+function onSwitchUp() {
+  send({ "device": "console.log('SWITCH_UP'); digitalPulse(NodeMCU.D4, LOW, [200]); 'SWITCH_UP'" });
+  fadeOut(switchUp);
+}
+
+function onSwitchStop() {
+  send({ "device": "console.log('SWITCH_STOP'); digitalPulse(NodeMCU.D4, LOW, [200, 300, 200]); 'SWITCH_STOP'" });
+  fadeOut(switchStop);
+}
+
+function onSwitchDown() {
+  send({ "device": "console.log('SWITCH_DOWN'); digitalPulse(NodeMCU.D4, LOW, [200, 300, 200, 300, 200]); 'SWITCH_DOWN'" });
+  fadeOut(switchDown);
+}
+
+function fadeOut(element) {
+  element.style.opacity = 1.0;
+
+  var timer = setInterval(function() {
+    if (element.style.opacity <= 0.1) {
+      clearInterval(timer);
+    }
+
+    element.style.opacity -= 0.1;
+  }, 100);
+}
+
+function changeFavicon(src) {
+  var link = document.createElement("link");
+  link.id = "dynamic-favicon";
+  link.rel = "icon";
+  link.href = src + "?=" + Date.now();
+
+  var oldLink = document.getElementById("dynamic-favicon");
+  if (oldLink) {
+    document.head.removeChild(oldLink);
+  }
+
+  document.head.appendChild(link);
+}
+
+window.addEventListener("load", init, false);
+</script>
+
+</body>
+
+</html>

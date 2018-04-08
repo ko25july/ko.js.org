@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/",
+    "name": "index.html",
+    "type": "text/html"
+  },
+  {
+    "path": "/status",
+    "name": "status.html",
+    "type": "text/html"
+  },
+  {
+    "path": "/remote",
+    "name": "remote.html",
+    "type": "text/html"
+  },
+  {
+    "path": "/console",
+    "name": "console.html",
+    "type": "text/html"
+  }
+]
