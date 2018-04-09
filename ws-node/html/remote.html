@@ -145,17 +145,17 @@ function send(message) {
 }
 
 function onSwitchUp() {
-  send({ "device": "console.log('SWITCH_UP'); digitalPulse(NodeMCU.D4, LOW, [200]); 'SWITCH_UP'" });
+  send({ "device": "console.log('SWITCH_UP'); digitalPulse(NodeMCU.D1, LOW, [200]); 'SWITCH_UP'" });
   fadeOut(switchUp);
 }
 
 function onSwitchStop() {
-  send({ "device": "console.log('SWITCH_STOP'); digitalPulse(NodeMCU.D4, LOW, [200, 300, 200]); 'SWITCH_STOP'" });
+  send({ "device": "console.log('SWITCH_STOP'); digitalPulse(NodeMCU.D2, LOW, [200]); 'SWITCH_STOP'" });
   fadeOut(switchStop);
 }
 
 function onSwitchDown() {
-  send({ "device": "console.log('SWITCH_DOWN'); digitalPulse(NodeMCU.D4, LOW, [200, 300, 200, 300, 200]); 'SWITCH_DOWN'" });
+  send({ "device": "console.log('SWITCH_DOWN'); digitalPulse(NodeMCU.D5, LOW, [200]); 'SWITCH_DOWN'" });
   fadeOut(switchDown);
 }
 
