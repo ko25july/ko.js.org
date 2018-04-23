@@ -17,14 +17,8 @@ if (typeof(minutesInterval) !== "undefined") {
 global.minutesInterval = setInterval(function() {
   let hours = new Date(Date.now() + dateOffset).getHours();
 
-  if (hours >= 4) {
-    if (typeof(wsClient) === "undefined" || !wsClient.connected) {
-      connectWebSocket();
-    } else {
-      wsClient.send(JSON.stringify({
-        "device": "ONLINE"
-      }));
-    }
+  if (hours >= 4 && (typeof(wsClient) === "undefined" || !wsClient.connected)) {
+    connectWebSocket();
   }
 }, 60 * 1000);
 
