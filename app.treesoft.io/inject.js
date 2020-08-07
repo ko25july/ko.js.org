@@ -179,12 +179,66 @@ document.injectInitial = function() {
 			printHeader.style.cssText = "width: 100%;";
 			printContent.appendChild(printHeader);
 
+			var printBody = document.createElement("div");
+			printBody.style.cssText = "width: 100%;";
+			printContent.appendChild(printBody);
+
 			var printFooter = document.createElement("div");
 			printFooter.innerHTML = document.printFooterHTML;
 			printFooter.style.cssText = "width: 100%;";
 			printContent.appendChild(printFooter);
 
-			printContent.insertBefore(printDocument.body.firstChild.nextSibling, printContent.lastChild);
+			printDocument.body.firstChild.nextSibling.style.visibility = "hidden";
+
+			var product = "";
+			var price = "";
+			var amount = "";
+			var total = "";
+			var numberTotal = "";
+			var numberItems = "";
+			var numberPieces = 0;
+			var numberPay = "";
+			var numberChange = "";
+
+			var listAllProduct = printDocument.body.querySelectorAll("div.receipt-template>div>ul>li");
+
+			if (listAllProduct) {
+				numberItems = listAllProduct.length;
+
+				listAllProduct.forEach(function(listItem) {
+					var listData = listItem.textContent.split("\n").map(function(item) { return item.trim(); }).filter(function(item) { return item; });
+					product = listData[0];
+					price = listData[1];
+					amount = listData[2].slice(1);
+					total = listData[3];
+					numberPieces += parseInt(amount);
+
+					var printData = document.createElement("div");
+					printData.style.cssText = "width: 100%;";
+					printData.innerHTML = "<div style='width: 100%; text-align: center; font-size: 1.0rem; display: inline-flex;'>" +
+						"<div style='width: 15%; text-align: center; font-size: 1.0rem;'>" + amount + "</div>" +
+						"<div style='width: 50%; text-align: left; font-size: 1.0rem;'>" + product + "</div>" +
+						"<div style='width: 15%; text-align: center; font-size: 1.0rem;'>" + price + "</div>" +
+						"<div style='width: 20%; text-align: right; font-size: 1.0rem;'>" + total + "</div>" +
+						"</div>";
+					printBody.appendChild(printData);
+				});
+			}
+
+			var listAllSummary = printDocument.body.querySelectorAll("div.receipt-template>div>div");
+
+			if (listAllSummary && listAllSummary.length > 2) {
+				numberTotal = listAllSummary[0].textContent.split(" ").map(function(item) { return item.trim(); }).filter(function(item){return item})[1];
+				numberPay = listAllSummary[1].textContent.split(" ").map(function(item) { return item.trim(); }).filter(function(item){return item})[1];
+				numberChange = listAllSummary[2].textContent.split(" ").map(function(item) { return item.trim(); }).filter(function(item){return item})[1];
+			}
+
+			printHeader.querySelector("div#receiptDate").innerText = new Date().toLocaleString("th-TH");
+			printFooter.querySelector("div#numberItems").innerText = numberItems;
+			printFooter.querySelector("div#numberPieces").innerText = numberPieces;
+			printFooter.querySelector("div#numberTotal").innerText = numberTotal;
+			printFooter.querySelector("div#numberPay").innerText = numberPay;
+			printFooter.querySelector("div#numberChange").innerText = numberChange;
 		}
 
 		return false;
