@@ -237,6 +237,8 @@ document.injectInitial = function() {
 			printFooter.querySelector("div#numberPay").innerText = numberPay;
 			printFooter.querySelector("div#numberChange").innerText = numberChange;
 
+			printDocument.querySelector("html").style.fontSize = "20px";
+
 			printDocument.body.innerHTML = "";
 			printDocument.body.appendChild(printContent);
 			document.body.appendChild(printDocument.body.firstChild.cloneNode(true));
