@@ -171,8 +171,7 @@ document.injectInitial = function() {
 			var printDocument = printIframe.contentWindow.document;
 
 			var printContent = document.createElement("div");
-			printContent.style.cssText = "width: 100%; padding: 10px; text-align: center; vertical-align: top; background: #fff; font-family: 'TH Sarabun New';";
-			printDocument.body.insertBefore(printContent, printDocument.body.firstChild);
+			printContent.style.cssText = "width: 100%; padding: 20px; text-align: center; vertical-align: top; background: #fff; font-family: 'TH Sarabun New';";
 
 			var printHeader = document.createElement("div");
 			printHeader.innerHTML = document.printHeaderHTML;
@@ -187,8 +186,6 @@ document.injectInitial = function() {
 			printFooter.innerHTML = document.printFooterHTML;
 			printFooter.style.cssText = "width: 100%;";
 			printContent.appendChild(printFooter);
-
-			printDocument.body.firstChild.nextSibling.style.visibility = "hidden";
 
 			var product = "";
 			var price = "";
@@ -239,6 +236,12 @@ document.injectInitial = function() {
 			printFooter.querySelector("div#numberTotal").innerText = numberTotal;
 			printFooter.querySelector("div#numberPay").innerText = numberPay;
 			printFooter.querySelector("div#numberChange").innerText = numberChange;
+
+			printDocument.body.innerHTML = "";
+			printDocument.body.appendChild(printContent);
+			document.body.appendChild(printDocument.body.firstChild.cloneNode(true));
+			printDocument.body.firstChild.style.height = document.body.lastChild.clientHeight + "px";
+			document.body.removeChild(document.body.lastChild);
 		}
 
 		return false;
