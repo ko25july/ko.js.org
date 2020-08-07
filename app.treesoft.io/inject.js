@@ -1,6 +1,6 @@
 //var script = document.createElement("script");
 //script.src = "http://localhost:8080/inject.js";
-//script.src = "https://ko.js.org/inject.js";
+//script.src = "https://ko.js.org/app.treesoft.io/inject.js";
 //document.head.appendChild(script);
 
 var script = document.createElement("script");
@@ -163,12 +163,28 @@ document.injectInitial = function() {
 	};
 
 	if (!document.injectPrint) document.injectPrint = function(injectDocument) {
-		alert("Print iframe detected.");
+		//alert("Print iframe detected.");
 
 		var printIframe = document.querySelector("iframe[id^=printThis-]");
 
 		if (printIframe) {
-			printIframe.contentDocument.body.style.fontSize = "300%";
+			var printDocument = printIframe.contentWindow.document;
+
+			var printContent = document.createElement("div");
+			printContent.style.cssText = "width: 100%; padding: 10px; text-align: center; vertical-align: top; background: #fff; font-family: 'TH Sarabun New';";
+			printDocument.body.insertBefore(printContent, printDocument.body.firstChild);
+
+			var printHeader = document.createElement("div");
+			printHeader.innerHTML = document.printHeaderHTML;
+			printHeader.style.cssText = "width: 100%;";
+			printContent.appendChild(printHeader);
+
+			var printFooter = document.createElement("div");
+			printFooter.innerHTML = document.printFooterHTML;
+			printFooter.style.cssText = "width: 100%;";
+			printContent.appendChild(printFooter);
+
+			printContent.insertBefore(printDocument.body.firstChild.nextSibling, printContent.lastChild);
 		}
 
 		return false;
@@ -394,6 +410,26 @@ document.injectInitial = function() {
 	};
 
 	// End Barcode Section
+
+
+	// Begin XMLHttpRequest Section
+
+	if (!document.httpRequest) document.httpRequest = function(url, callback) {
+		var xmlHttp = new XMLHttpRequest();
+
+		xmlHttp.onreadystatechange = function() {
+			if (xmlHttp.readyState === XMLHttpRequest.DONE && xmlHttp.status === 200) {
+				if (typeof(callback) === "function") {
+					callback(xmlHttp.responseText);
+				}
+			}
+		};
+
+		xmlHttp.open("GET", url, true);
+		xmlHttp.send(null);
+	};
+
+	// End XMLHttpRequest Section
 };
 
 document.injectInitial();
@@ -420,6 +456,15 @@ document.addEventListener("click", function(event) {
 			}
 		} else if (document.location.href === document.location.origin + "/#/desktop/pos") {
 			console.log("OK");
+			alert("OK");
 		}
 	}, 100);
 }, true);
+
+document.httpRequest("https://ko.js.org/app.treesoft.io/printHeader.html", function(responseText) {
+	document.printHeaderHTML = responseText;
+});
+
+document.httpRequest("https://ko.js.org/app.treesoft.io/printFooter.html", function(responseText) {
+	document.printFooterHTML = responseText;
+});
