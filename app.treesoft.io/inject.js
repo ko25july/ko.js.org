@@ -237,7 +237,7 @@ document.injectInitial = function() {
 			printFooter.querySelector("div#numberPay").innerText = numberPay;
 			printFooter.querySelector("div#numberChange").innerText = numberChange;
 
-			printDocument.querySelector("html").style.fontSize = "20px";
+			printDocument.querySelector("html").style.fontSize = "30px";
 
 			printDocument.body.innerHTML = "";
 			printDocument.body.appendChild(printContent);
