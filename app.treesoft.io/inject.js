@@ -206,17 +206,17 @@ document.injectInitial = function() {
 					var listData = listItem.textContent.split("\n").map(function(item) { return item.trim(); }).filter(function(item) { return item; });
 					product = listData[0];
 					price = listData[1];
-					amount = listData[2].slice(1);
+					amount = listData[2].split(" ")[0].slice(1);
 					total = listData[3];
 					numberPieces += parseInt(amount);
 
 					var printData = document.createElement("div");
 					printData.style.cssText = "width: 100%;";
 					printData.innerHTML = "<div style='width: 100%; text-align: center; font-size: 1.0rem; display: inline-flex;'>" +
-						"<div style='width: 15%; text-align: center; font-size: 1.0rem;'>" + amount + "</div>" +
-						"<div style='width: 50%; text-align: left; font-size: 1.0rem;'>" + product + "</div>" +
-						"<div style='width: 15%; text-align: center; font-size: 1.0rem;'>" + price + "</div>" +
-						"<div style='width: 20%; text-align: right; font-size: 1.0rem;'>" + total + "</div>" +
+						"<div style='width: 15%; text-align: center; font-size: 2.0rem;'>" + amount + "</div>" +
+						"<div style='width: 50%; text-align: left; font-size: 2.0rem;'>" + product + "</div>" +
+						"<div style='width: 15%; text-align: center; font-size: 2.0rem;'>" + price + "</div>" +
+						"<div style='width: 20%; text-align: right; font-size: 2.0rem;'>" + total + "</div>" +
 						"</div>";
 					printBody.appendChild(printData);
 				});
