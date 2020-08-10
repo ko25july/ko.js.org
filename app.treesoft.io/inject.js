@@ -1,9 +1,11 @@
+const baseInject = "http://localhost:8080";
+//const baseInject = "https://ko.js.org/app.treesoft.io";
+
 //var script = document.createElement("script");
-//script.src = "http://localhost:8080/inject.js";
-//script.src = "https://ko.js.org/app.treesoft.io/inject.js";
+//script.src = baseInject + "/inject.js";
 //document.head.appendChild(script);
 
-var script = document.createElement("script");
+let script = document.createElement("script");
 script.src = "https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js";
 document.head.appendChild(script);
 
@@ -12,9 +14,9 @@ document.injectInitial = function () {
 
     if (!document.getElementXTag) document.getElementXTag = function (element) {
         if (element && element.nodeType === Node.ELEMENT_NODE) {
-            var tagName = element.localName;
-            var tagId = element.id ? "#" + element.id.trim() : "";
-            var tagClass = element.className ? "." + element.className.trim().split(" ").join(".") : "";
+            let tagName = element.localName;
+            let tagId = element.id ? "#" + element.id.trim() : "";
+            let tagClass = element.className ? "." + element.className.trim().split(" ").join(".") : "";
 
             return tagName + tagId + tagClass;
         } else {
@@ -23,10 +25,10 @@ document.injectInitial = function () {
     };
 
     if (!document.getElementXPath) document.getElementXPath = function (element) {
-        var xPath = "";
+        let xPath = "";
 
         for (; element; element = element.parentNode) {
-            var xTag = document.getElementXTag(element);
+            let xTag = document.getElementXTag(element);
 
             if (xTag) {
                 xPath = xTag + ">" + xPath;
@@ -39,8 +41,8 @@ document.injectInitial = function () {
     if (!document.connectObserver) document.connectObserver = function (target, options) {
         document.disconnectObserver();
 
-        document.mutationObserver = new MutationObserver(function (records, observer) {
-            for (var record of records) {
+        document.mutationObserver = new MutationObserver(function (records) {
+            for (let record of records) {
                 switch (record.type) {
                     case "attributes":
                         document.Android.runOnAndroid(record.type, record.attributeName, record.target, record.oldValue);
@@ -131,7 +133,6 @@ document.injectInitial = function () {
                     injectDocument.execCommandOld(aCommandName, aShowDefaultUI, aValueArgument);
                 }
             }
-            ;
 
             if (!injectDocument.printOld) {
                 injectDocument.printOld = injectDocument.print;
@@ -146,7 +147,6 @@ document.injectInitial = function () {
                     injectDocument.printOld();
                 }
             }
-            ;
         };
 
         document.injectPrintDocument(document);
@@ -157,7 +157,7 @@ document.injectInitial = function () {
 
         document.queryCommandSupported = function (command) {
             if (command === "print") {
-                var printIframe = document.querySelector("iframe[id^=printThis-]");
+                let printIframe = document.querySelector("iframe[id^=printThis-]");
 
                 if (printIframe) {
                     document.injectPrintDocument(printIframe.contentWindow.document);
@@ -167,50 +167,45 @@ document.injectInitial = function () {
             return document.queryCommandSupportedOld(command);
         }
     }
-    ;
 
     if (!document.injectPrint) document.injectPrint = function (injectDocument) {
         //alert("Print iframe detected.");
 
-        var printIframe = document.querySelector("iframe[id^=printThis-]");
-
-        if (printIframe) {
-            var printDocument = printIframe.contentWindow.document;
-
-            var printContent = document.createElement("div");
+        if (injectDocument) {
+            let printContent = document.createElement("div");
             printContent.style.cssText = "width: 100%; padding: 20px; text-align: center; vertical-align: top; background: #fff; font-family: 'TH Sarabun New';";
 
-            var printHeader = document.createElement("div");
+            let printHeader = document.createElement("div");
             printHeader.innerHTML = document.printHeaderHTML;
             printHeader.style.cssText = "width: 100%;";
             printContent.appendChild(printHeader);
 
-            var printBody = document.createElement("div");
+            let printBody = document.createElement("div");
             printBody.style.cssText = "width: 100%;";
             printContent.appendChild(printBody);
 
-            var printFooter = document.createElement("div");
+            let printFooter = document.createElement("div");
             printFooter.innerHTML = document.printFooterHTML;
             printFooter.style.cssText = "width: 100%;";
             printContent.appendChild(printFooter);
 
-            var product = "";
-            var price = "";
-            var amount = "";
-            var total = "";
-            var numberTotal = "";
-            var numberItems = "";
-            var numberPieces = 0;
-            var numberPay = "";
-            var numberChange = "";
+            let product = "";
+            let price = "";
+            let amount = "";
+            let total = "";
+            let numberTotal = "";
+            let numberItems = "";
+            let numberPieces = 0;
+            let numberPay = "";
+            let numberChange = "";
 
-            var listAllProduct = printDocument.body.querySelectorAll("div.receipt-template>div>ul>li");
+            let listAllProduct = injectDocument.body.querySelectorAll("div.receipt-template>div>ul>li");
 
             if (listAllProduct) {
                 numberItems = listAllProduct.length;
 
                 listAllProduct.forEach(function (listItem) {
-                    var listData = listItem.textContent.split("\n").map(function (item) {
+                    let listData = listItem.textContent.split("\n").map(function (item) {
                         return item.trim();
                     }).filter(function (item) {
                         return item;
@@ -221,19 +216,19 @@ document.injectInitial = function () {
                     total = listData[3];
                     numberPieces += parseInt(amount);
 
-                    var printData = document.createElement("div");
+                    let printData = document.createElement("div");
                     printData.style.cssText = "width: 100%;";
-                    printData.innerHTML = "<div style='width: 100%; text-align: center; font-size: 1.0rem; display: inline-flex;'>" +
-                        "<div style='width: 15%; text-align: center; font-size: 2.0rem;'>" + amount + "</div>" +
-                        "<div style='width: 50%; text-align: left; font-size: 2.0rem;'>" + product + "</div>" +
-                        "<div style='width: 15%; text-align: center; font-size: 2.0rem;'>" + price + "</div>" +
-                        "<div style='width: 20%; text-align: right; font-size: 2.0rem;'>" + total + "</div>" +
+                    printData.innerHTML = "<div style='width: 100%; text-align: center; display: inline-flex;'>" +
+                        "<div style='width: 15%; padding-right: 40px; text-align: right;'>" + parseFloat(amount).toLocaleString() + "</div>" +
+                        "<div style='width: 50%; text-align: left;'>" + product + "</div>" +
+                        "<div style='width: 15%; padding-right: 20px; text-align: right;'>" + parseFloat(price).toLocaleString() + "</div>" +
+                        "<div style='width: 20%; text-align: right;'>" + parseFloat(total).toLocaleString() + "</div>" +
                         "</div>";
                     printBody.appendChild(printData);
                 });
             }
 
-            var listAllSummary = printDocument.body.querySelectorAll("div.receipt-template>div>div");
+            let listAllSummary = injectDocument.body.querySelectorAll("div.receipt-template>div>div");
 
             if (listAllSummary && listAllSummary.length > 2) {
                 numberTotal = listAllSummary[0].textContent.split(" ").map(function (item) {
@@ -253,20 +248,17 @@ document.injectInitial = function () {
                 })[1];
             }
 
-            printHeader.querySelector("div#receiptDate").innerText = new Date().toLocaleString("th-TH");
-            printFooter.querySelector("div#numberItems").innerText = numberItems;
-            printFooter.querySelector("div#numberPieces").innerText = numberPieces;
-            printFooter.querySelector("div#numberTotal").innerText = numberTotal;
-            printFooter.querySelector("div#numberPay").innerText = numberPay;
-            printFooter.querySelector("div#numberChange").innerText = numberChange;
+            printHeader.querySelector("div#receiptDate").innerHTML = new Date().toLocaleString("th-TH");
+            printFooter.querySelector("div#numberItems").innerHTML = "<strong>" + parseFloat(numberItems).toLocaleString() + "</strong>";
+            printFooter.querySelector("div#numberPieces").innerHTML = "<strong>" + parseFloat(numberPieces).toLocaleString() + "</strong>";
+            printFooter.querySelector("div#numberTotal").innerHTML = "<strong>" + parseFloat(numberTotal).toLocaleString(undefined, {maximumFractionDigits: 2}) + "</strong>";
+            printFooter.querySelector("div#numberPay").innerHTML = "<strong>" + parseFloat(numberPay).toLocaleString(undefined, {maximumFractionDigits: 2}) + "</strong>";
+            printFooter.querySelector("div#numberChange").innerHTML = "<strong>" + parseFloat(numberChange).toLocaleString(undefined, {maximumFractionDigits: 2}) + "</strong>";
 
-            printDocument.querySelector("html").style.fontSize = "30px";
+            injectDocument.querySelector("html").style.cssText = "width: 600px; font-size: 38px;";
 
-            printDocument.body.innerHTML = "";
-            printDocument.body.appendChild(printContent);
-            document.body.appendChild(printDocument.body.firstChild.cloneNode(true));
-            printDocument.body.firstChild.style.height = document.body.lastChild.clientHeight + "px";
-            document.body.removeChild(document.body.lastChild);
+            injectDocument.body.innerHTML = "";
+            injectDocument.body.appendChild(printContent);
         }
 
         return false;
@@ -277,7 +269,7 @@ document.injectInitial = function () {
     if (!document.Android.runOnAndroid) document.Android.runOnAndroid = function (type, name, target, node) {
         if (type === "childList" && name === "addedNodes") {
             if (node.localName === "div" && node.id === "dataTable_wrapper") {
-                var selectElement = target.querySelector("div.row>div>div#dataTable_length>label>select[name=dataTable_length]");
+                let selectElement = target.querySelector("div.row>div>div#dataTable_length>label>select[name=dataTable_length]");
 
                 if (selectElement) {
                     document.disconnectObserver();
@@ -291,32 +283,32 @@ document.injectInitial = function () {
     if (!document.checkPrintBarcode) document.checkPrintBarcode = function () {
         console.log("checkPrintBarcode");
 
-        var contentElement = document.querySelector("html>body>div#app>div#content");
-        var selectElement = contentElement.querySelector("div.content>div>div#dataTable_wrapper>div.row>div>div#dataTable_length>label>select");
+        let contentElement = document.querySelector("html>body>div#app>div#content");
+        let selectElement = contentElement.querySelector("div.content>div>div#dataTable_wrapper>div.row>div>div#dataTable_length>label>select");
 
         if (selectElement && selectElement.options[selectElement.options.length - 1].value !== "1000") {
-            selectElement.options[selectElement.options.length] = new Option("1000", 1000);
+            selectElement.options[selectElement.options.length] = new Option("1000", "1000");
             selectElement.value = selectElement.options[selectElement.options.length - 1].value;
             selectElement.dispatchEvent(new Event("change"));
 
-            var selectListElement = contentElement.querySelector("div>div>div>div.action>div#dropdownOptions>div.dropdown-menu>a.dropdown-item");
+            let selectListElement = contentElement.querySelector("div>div>div>div.action>div#dropdownOptions>div.dropdown-menu>a.dropdown-item");
 
             if (selectListElement) {
                 selectListElement.addEventListener("click", function () {
-                    var cancelButtonElement = contentElement.querySelector("div.content>div>div>div:nth-child(2)>button:nth-child(2)");
+                    let cancelButtonElement = contentElement.querySelector("div.content>div>div>div:nth-child(2)>button:nth-child(2)");
 
                     if (cancelButtonElement) {
-                        var numberInput = document.createElement("input");
+                        let numberInput = document.createElement("input");
                         numberInput.type = "number";
-                        numberInput.min = 1;
-                        numberInput.max = 100;
+                        numberInput.min = "1";
+                        numberInput.max = "100";
                         numberInput.value = numberInput.min;
                         numberInput.placeholder = "1";
                         numberInput.style.marginLeft = "50px";
                         numberInput.style.textAlign = "center";
                         cancelButtonElement.parentElement.appendChild(numberInput);
 
-                        var selectButton = document.createElement("button");
+                        let selectButton = document.createElement("button");
                         selectButton.type = "button";
                         selectButton.className = "btn btn-web";
                         selectButton.innerText = "พิมพ์บาร์โค้ด";
@@ -324,28 +316,30 @@ document.injectInitial = function () {
                         cancelButtonElement.parentElement.appendChild(selectButton);
 
                         selectButton.addEventListener("click", function () {
-                            var numberBarcode = isNaN(numberInput.valueAsNumber) ? Number(numberInput.placeholder) : Number(numberInput.valueAsNumber);
+                            let numberBarcode = isNaN(numberInput.valueAsNumber) ? Number(numberInput.placeholder) : Number(numberInput.valueAsNumber);
 
                             if (numberBarcode <= 0) {
                                 return;
                             }
 
-                            var productTable = document.querySelector("html>body>div#app>div#content>div>div>div#dataTable_wrapper>div.row>div>table#dataTable>tbody");
+                            let productTable = document.querySelector("html>body>div#app>div#content>div>div>div#dataTable_wrapper>div.row>div>table#dataTable>tbody");
 
                             if (productTable) {
-                                var allCheckBox = productTable.querySelectorAll("input.vs-checkbox--input");
+                                let allCheckBox = productTable.querySelectorAll("input.vs-checkbox--input");
 
                                 if (allCheckBox) {
-                                    var allPrintHTML = [];
+                                    let allPrintHTML = [];
 
-                                    for (var i = 0, j = allCheckBox.length; i < j; i++) {
-                                        var checkBox = allCheckBox.item(i);
+                                    let i = 0, j = allCheckBox.length;
+
+                                    for (; i < j; i++) {
+                                        let checkBox = allCheckBox.item(i);
 
                                         if (checkBox.checked) {
-                                            var dataTable = checkBox.parentNode.parentNode.parentNode.children;
-                                            var barcode = dataTable.item(3).innerText;
-                                            var product = dataTable.item(4).innerText;
-                                            var price = dataTable.item(5).innerText;
+                                            let dataTable = checkBox.parentNode.parentNode.parentNode.children;
+                                            let barcode = dataTable.item(3).innerText;
+                                            let product = dataTable.item(4).innerText;
+                                            let price = dataTable.item(5).innerText;
 
                                             allPrintHTML[allPrintHTML.length] = [barcode, product, price];
                                         }
@@ -370,14 +364,14 @@ document.injectInitial = function () {
     // Begin Print Section
 
     if (!document.printHTML) document.printHTML = function (callback, options) {
-        var printIFrame = document.createElement("iframe");
+        let printIFrame = document.createElement("iframe");
         printIFrame.style.position = "absolute";
-        printIFrame.style.top = -999;
-        printIFrame.style.left = -999;
+        printIFrame.style.top = "-999";
+        printIFrame.style.left = "-999";
         document.body.appendChild(printIFrame);
 
-        var frameWindow = printIFrame.contentWindow || printIFrame.contentDocument || printIFrame;
-        var frameDocument = frameWindow.document || frameWindow.contentDocument || frameWindow;
+        let frameWindow = printIFrame.contentWindow || printIFrame.contentDocument || printIFrame;
+        let frameDocument = frameWindow.document || frameWindow.contentDocument || frameWindow;
 
         callback(frameDocument, options);
 
@@ -387,8 +381,8 @@ document.injectInitial = function () {
         frameWindow.focus();
 
         try {
-            // Fix for IE11 - printng the whole page instead of the iframe content
-            if (!framedocument.execCommand("print", false, null)) {
+            // Fix for IE11 - printing the whole page instead of the iframe content
+            if (!frameDocument.execCommand("print", false, null)) {
                 // document.execCommand returns false if it failed -http://stackoverflow.com/a/21336448/937891
                 frameWindow.print();
             }
@@ -412,38 +406,39 @@ document.injectInitial = function () {
     // Begin Barcode Section
 
     if (!document.getBarcodeHTML) document.getBarcodeHTML = function (frameDocument, options) {
-        var numberColumn = 5;
-        var numberRow = 100 / numberColumn;
-        var leftPage = 0;
-        var topPage = 0;
+        let numberColumn = 5;
+        let numberRow = 100 / numberColumn;
+        let leftPage = 0;
+        let topPage = 0;
 
-        var barcodeHTML = document.createElement("div");
-        barcodeHTML.style.top = -999;
-        barcodeHTML.style.left = -999;
+        let barcodeHTML = document.createElement("div");
+        barcodeHTML.style.position = "absolute";
+        barcodeHTML.style.top = "-999";
+        barcodeHTML.style.left = "-999";
         frameDocument.body.appendChild(barcodeHTML);
 
-        var table = document.createElement("table");
+        let table = document.createElement("table");
         table.style.cssText = "border = 0px; left: " + leftPage + "px; top: " + topPage + "px;";
         barcodeHTML.insertBefore(table, barcodeHTML.firstChild);
 
-        var tableBody = document.createElement("tbody");
+        let tableBody = document.createElement("tbody");
         table.appendChild(tableBody);
 
-        var countBarcode = 0;
-        var barcode = "";
-        var product = "";
-        var price = "";
+        let countBarcode = 0;
+        let barcode = "";
+        let product = "";
+        let price = "";
 
-        for (var i = 0; i < numberRow && (options.args[0].length > 0 || countBarcode > 0); i++) {
-            var tableRow = document.createElement("tr");
+        for (let i = 0; i < numberRow && (options.args[0].length > 0 || countBarcode > 0); i++) {
+            let tableRow = document.createElement("tr");
             tableBody.appendChild(tableRow);
 
-            for (var j = 0; j < numberColumn && (options.args[0].length > 0 || countBarcode > 0); j++) {
+            for (let j = 0; j < numberColumn && (options.args[0].length > 0 || countBarcode > 0); j++) {
                 if (countBarcode === 0) {
                     if (options.args[0].length > 0) {
                         countBarcode = options.args[1];
 
-                        var printRow = options.args[0].shift();
+                        let printRow = options.args[0].shift();
                         barcode = printRow.shift();
                         product = printRow.shift();
                         price = printRow.shift();
@@ -454,24 +449,24 @@ document.injectInitial = function () {
 
                 countBarcode--;
 
-                var tableData = document.createElement("td");
+                let tableData = document.createElement("td");
                 tableData.style.cssText = "padding: 0px; text-align: center; vertical-align: bottom; width: 178px;";
                 tableRow.appendChild(tableData);
 
-                var barcodeContent = document.createElement("div");
+                let barcodeContent = document.createElement("div");
                 barcodeContent.style.cssText = "padding: 10px; text-align: center; vertical-align: middle; background: #fff; font-family: 'TH Sarabun New';";
                 tableData.appendChild(barcodeContent);
 
-                var barcodeHeader = document.createElement("div");
+                let barcodeHeader = document.createElement("div");
                 barcodeHeader.style.cssText = "padding: 0px; text-align: center; font-weight: bold; font-size: 1.0em;";
                 barcodeHeader.innerText = product;
                 barcodeContent.appendChild(barcodeHeader);
 
-                var barcodeBody = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                let barcodeBody = document.createElementNS("http://www.w3.org/2000/svg", "svg");
                 barcodeBody.style.cssText = "padding: 0px; text-align: center;";
                 barcodeContent.appendChild(barcodeBody);
 
-                var barcodeFooter = document.createElement("div");
+                let barcodeFooter = document.createElement("div");
                 barcodeFooter.style.cssText = "padding: 0px; text-align: center; font-weight: bold; font-size: 1.2em;";
                 barcodeFooter.innerText = Number(price).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
@@ -479,6 +474,7 @@ document.injectInitial = function () {
                 }) + " บาท";
                 barcodeContent.appendChild(barcodeFooter);
 
+                // noinspection JSUnresolvedFunction
                 JsBarcode(barcodeBody, barcode, {
                     format: "CODE128",
                     font: "TH Sarabun New",
@@ -500,7 +496,7 @@ document.injectInitial = function () {
     // Begin XMLHttpRequest Section
 
     if (!document.httpRequest) document.httpRequest = function (url, callback) {
-        var xmlHttp = new XMLHttpRequest();
+        let xmlHttp = new XMLHttpRequest();
 
         xmlHttp.onreadystatechange = function () {
             if (xmlHttp.readyState === XMLHttpRequest.DONE && xmlHttp.status === 200) {
@@ -532,24 +528,29 @@ if (document.location.href === document.location.origin + "/#/desktop/items/prod
 
 document.addEventListener("click", function (event) {
     setTimeout(function () {
-        console.log("Click: " + event.target.innerText);
-        //alert("Click: " + event.target.innerText);
+        let element = event.target;
+        console.log("Click: " + element.innerText);
+        //alert("Click: " + element.innerText);
 
-        if (document.location.href === document.location.origin + "/#/desktop/items/product/all") {
-            if (event.target.localName === "span" && event.target.className === "name") {
-                document.checkPrintBarcode();
-            }
-        } else if (document.location.href === document.location.origin + "/#/desktop/pos") {
-            console.log("OK");
-            alert("OK");
+        switch (document.location.href.split("?")[0]) {
+            case document.location.origin + "/#/desktop/items/product/all":
+                if (element.localName === "span" && element.className === "name") {
+                    document.checkPrintBarcode();
+                }
+                break;
+
+            case document.location.origin + "/#/desktop/pos":
+                console.log("OK");
+                alert("OK");
+                break;
         }
     }, 100);
 }, true);
 
-document.httpRequest("https://ko.js.org/app.treesoft.io/printHeader.html", function (responseText) {
+document.httpRequest(baseInject + "/printHeader.html", function (responseText) {
     document.printHeaderHTML = responseText;
 });
 
-document.httpRequest("https://ko.js.org/app.treesoft.io/printFooter.html", function (responseText) {
+document.httpRequest(baseInject + "/printFooter.html", function (responseText) {
     document.printFooterHTML = responseText;
 });
