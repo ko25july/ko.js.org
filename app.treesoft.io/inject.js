@@ -1,5 +1,5 @@
-const baseInject = "http://localhost:8080";
-//const baseInject = "https://ko.js.org/app.treesoft.io";
+//const baseInject = "http://localhost:8080";
+const baseInject = "https://ko.js.org/app.treesoft.io";
 
 //var script = document.createElement("script");
 //script.src = baseInject + "/inject.js";
