@@ -10,8 +10,8 @@
 */
 
 (function () {
-    const injectBase = "http://localhost:5500/app.treesoft.io";
-    //const injectBase = "https://ko.js.org/app.treesoft.io";
+    //const injectBase = "http://localhost:5500/app.treesoft.io";
+    const injectBase = "https://ko.js.org/app.treesoft.io";
 
     let JsBarcodeScript = document.createElement("script");
     JsBarcodeScript.src = "https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js";
