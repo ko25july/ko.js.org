@@ -1,7 +1,7 @@
 /*
 (function () {
-    const injectBase = "http://localhost:5500/app.treesoft.io";
-    //const injectBase = "https://ko.js.org/app.treesoft.io";
+    //const injectBase = "http://localhost:8080/app.treesoft.io";
+    const injectBase = "https://ko.js.org/app.treesoft.io";
 
     let injectScript = document.createElement("script");
     injectScript.src = injectBase + "/inject.js";
@@ -10,7 +10,7 @@
 */
 
 (function () {
-    //const injectBase = "http://localhost:5500/app.treesoft.io";
+    //const injectBase = "http://localhost:8080/app.treesoft.io";
     const injectBase = "https://ko.js.org/app.treesoft.io";
 
     let JsBarcodeScript = document.createElement("script");
@@ -104,7 +104,11 @@
                     }
                 });
 
-                document.mutationObserver.observe(target, options || { attributes: true, childList: true, subtree: true });
+                document.mutationObserver.observe(target, options || {
+                    attributes: true,
+                    childList: true,
+                    subtree: true
+                });
 
                 return document.mutationObserver;
             };
@@ -118,11 +122,11 @@
 
                 document.intersectionObserver = new IntersectionObserver(function (entries, observer) {
                     if (typeof callback === "function") {
-                        for (var entry of entries) {
+                        for (let entry of entries) {
                             callback(entry, observer, target);
                         }
                     }
-                }, options || { root: null, rootMargin: "0px 0px 0px 0px", threshold: 0.0 });
+                }, options || {root: null, rootMargin: "0px 0px 0px 0px", threshold: 0.0});
 
                 document.intersectionObserver.observe(target);
 
@@ -136,15 +140,16 @@
                     document.disconnectResizeObserver();
                 }
 
+                // noinspection JSUnresolvedFunction
                 document.resizeObserver = new ResizeObserver(function (entries, observer) {
                     if (typeof callback === "function") {
-                        for (var entry of entries) {
+                        for (let entry of entries) {
                             callback(entry, observer, target);
                         }
                     }
                 });
 
-                document.resizeObserver.observe(target, options || { box: "border-box" });
+                document.resizeObserver.observe(target, options || {box: "border-box"});
 
                 return document.resizeObserver;
             };
@@ -172,6 +177,7 @@
 
         if (typeof document.disconnectResizeObserver !== "function") {
             document.disconnectResizeObserver = function () {
+                // noinspection JSUnresolvedVariable
                 if (document.resizeObserver instanceof ResizeObserver) {
                     document.resizeObserver.disconnect();
                     document.resizeObserver = undefined;
@@ -322,11 +328,11 @@
                     }
 
                     printHeader.querySelector("div#receiptDate").innerHTML = new Date().toLocaleString("th-TH");
-                    printFooter.querySelector("div#numberItems").innerHTML = "<strong>" + parseFloat(numberItems).toLocaleString() + "</strong>";
-                    printFooter.querySelector("div#numberPieces").innerHTML = "<strong>" + parseFloat(numberPieces).toLocaleString() + "</strong>";
-                    printFooter.querySelector("div#numberTotal").innerHTML = "<strong>" + parseFloat(numberTotal).toLocaleString(undefined, { maximumFractionDigits: 2, }) + "</strong>";
-                    printFooter.querySelector("div#numberPay").innerHTML = "<strong>" + parseFloat(numberPay).toLocaleString(undefined, { maximumFractionDigits: 2, }) + "</strong>";
-                    printFooter.querySelector("div#numberChange").innerHTML = "<strong>" + parseFloat(numberChange).toLocaleString(undefined, { maximumFractionDigits: 2, }) + "</strong>";
+                    printFooter.querySelector("div#numberItems").innerHTML = "<strong>" + parseFloat("" + numberItems).toLocaleString() + "</strong>";
+                    printFooter.querySelector("div#numberPieces").innerHTML = "<strong>" + parseFloat("" + numberPieces).toLocaleString() + "</strong>";
+                    printFooter.querySelector("div#numberTotal").innerHTML = "<strong>" + parseFloat(numberTotal).toLocaleString(undefined, {maximumFractionDigits: 2,}) + "</strong>";
+                    printFooter.querySelector("div#numberPay").innerHTML = "<strong>" + parseFloat(numberPay).toLocaleString(undefined, {maximumFractionDigits: 2,}) + "</strong>";
+                    printFooter.querySelector("div#numberChange").innerHTML = "<strong>" + parseFloat(numberChange).toLocaleString(undefined, {maximumFractionDigits: 2,}) + "</strong>";
 
                     injectDocument.querySelector("html").style.cssText = "width: 600px; font-size: 38px;";
 
@@ -342,8 +348,8 @@
 
         // Begin Print Section
 
-        if (typeof document.printBarcodeHTML !== "function") {
-            document.printBarcodeHTML = function (options) {
+        if (typeof document.printContentDocument !== "function") {
+            document.printContentDocument = function (callback) {
                 let printIFrame = document.createElement("iframe");
                 printIFrame.style.position = "absolute";
                 printIFrame.style.top = "-999";
@@ -353,8 +359,8 @@
                 let frameWindow = printIFrame.contentWindow || printIFrame.contentDocument || printIFrame;
                 let frameDocument = frameWindow.document || frameWindow.contentDocument || frameWindow;
 
-                if (typeof document.createBarcodeHTML === "function") {
-                    document.createBarcodeHTML(frameDocument, options);
+                if (typeof callback === "function") {
+                    callback(frameDocument);
                 }
 
                 frameDocument.close();
@@ -385,109 +391,58 @@
 
         // End Print Section
 
-        // Begin Barcode Section
-
-        if (typeof document.createBarcodeHTML !== "function") {
-            document.createBarcodeHTML = function (frameDocument, options) {
-                let numberColumn = 5;
-                let numberRow = 1000 / numberColumn;
-                let leftPage = 0;
-                let topPage = 0;
-
-                let barcodeHTML = document.createElement("div");
-                barcodeHTML.style.position = "absolute";
-                barcodeHTML.style.top = "-999";
-                barcodeHTML.style.left = "-999";
-                frameDocument.body.appendChild(barcodeHTML);
-
-                let table = document.createElement("table");
-                table.style.cssText = "border = 0px; left: " + leftPage + "px; top: " + topPage + "px;";
-                barcodeHTML.insertBefore(table, barcodeHTML.firstChild);
-
-                let tableBody = document.createElement("tbody");
-                table.appendChild(tableBody);
-
-                let countBarcode = 0;
-                let barcode = "";
-                let product = "";
-                let price = "";
-
-                for (let i = 0; i < numberRow && (options.args[0].length > 0 || countBarcode > 0); i++) {
-                    let tableRow = document.createElement("tr");
-                    tableBody.appendChild(tableRow);
-
-                    for (let j = 0; j < numberColumn && (options.args[0].length > 0 || countBarcode > 0); j++) {
-                        if (countBarcode === 0) {
-                            if (options.args[0].length > 0) {
-                                countBarcode = options.args[1];
-
-                                let printRow = options.args[0].shift();
-                                barcode = printRow.shift();
-                                product = printRow.shift();
-                                price = printRow.shift();
-                            } else {
-                                break;
-                            }
-                        }
-
-                        countBarcode--;
-
-                        let tableData = document.createElement("td");
-                        tableData.style.cssText = "padding: 0px; text-align: center; vertical-align: bottom; width: 178px;";
-                        tableRow.appendChild(tableData);
-
-                        let barcodeContent = document.createElement("div");
-                        barcodeContent.style.cssText = "padding: 10px; text-align: center; vertical-align: middle; background: #fff; font-family: 'TH Sarabun New';";
-                        tableData.appendChild(barcodeContent);
-
-                        let barcodeHeader = document.createElement("div");
-                        barcodeHeader.style.cssText = "padding: 0px; text-align: center; font-weight: bold; font-size: 1.0em;";
-                        barcodeHeader.innerText = product;
-                        barcodeContent.appendChild(barcodeHeader);
-
-                        let barcodeBody = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                        barcodeBody.style.cssText = "padding: 0px; text-align: center;";
-                        barcodeContent.appendChild(barcodeBody);
-
-                        let barcodeFooter = document.createElement("div");
-                        barcodeFooter.style.cssText = "padding: 0px; text-align: center; font-weight: bold; font-size: 1.2em;";
-                        barcodeFooter.innerText = Number(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2, }) + " บาท";
-                        barcodeContent.appendChild(barcodeFooter);
-
-                        // noinspection JSUnresolvedFunction
-                        JsBarcode(barcodeBody, barcode, {
-                            format: "CODE128",
-                            font: "TH Sarabun New",
-                            fontOptions: "bold",
-                            fontSize: 18,
-                            margin: 0,
-                            textMargin: 0,
-                            width: 2,
-                            height: 30,
-                            displayValue: false,
-                        });
-                    }
-                }
-            };
-        }
-
-        // End Barcode Section
-
         // Begin Add Button Barcode Section
 
         if (typeof document.checkPrintBarcodeButton !== "function") {
-            document.checkPrintBarcodeButton = function () {
-                if (document.querySelector("#content>div.header>div.header-inner>div.right>div.action>div#print-barcode-content")) {
+            document.checkPrintBarcodeButton = function (element) {
+                if (element.localName === "button" && element.innerText === "ยกเลิก") {
+                    let printBarcodeContent = document.querySelector("html>body>div#app>div#content>div.header>div.header-inner>div.right>div.action>div#print-barcode-content");
+
+                    if (printBarcodeContent) {
+                        printBarcodeContent.parentNode.removeChild(printBarcodeContent);
+                    }
+
+                    return;
+                } else if (element.localName === "input" && element.type === "checkbox" && element.className === "vs-checkbox--input") {
+                    if (document.checkPrintBarcodeButton.printBarcodeList) {
+                        let dataList = element.closest("tr").children;
+
+                        if (element.checked) {
+                            document.checkPrintBarcodeButton.printBarcodeList[dataList.item(3).innerText] = [dataList.item(4).innerText, dataList.item(5).innerText];
+                        } else {
+                            delete document.checkPrintBarcodeButton.printBarcodeList[dataList.item(3).innerText];
+                        }
+                    }
+
+                    return;
+                } else if (element.localName !== "span" || element.innerText !== "เลือกหลายรายการ") {
                     return;
                 }
 
-                let headerActionBar = document.querySelector("#content>div.header>div.header-inner>div.right>div.action");
+                let contentDiv = document.querySelector("html>body>div#app>div#content");
+
+                if (!contentDiv) {
+                    return;
+                }
+
+                let headerActionBar = contentDiv.querySelector("div.header>div.header-inner>div.right>div.action");
 
                 if (!headerActionBar) {
                     return;
                 }
 
-                let printBarcodeContent = document.createElement("div");
+                let cancelButton = contentDiv.querySelector("div.content>div>div.row>div:nth-child(2)>button:nth-child(2)");
+                let printBarcodeContent = headerActionBar.querySelector("div#print-barcode-content");
+
+                if (!cancelButton || printBarcodeContent) {
+                    if (printBarcodeContent) {
+                        headerActionBar.removeChild(printBarcodeContent);
+                    }
+
+                    return;
+                }
+
+                printBarcodeContent = document.createElement("div");
                 printBarcodeContent.id = "print-barcode-content";
                 printBarcodeContent.style.cssText = "display: inline-block;";
                 headerActionBar.appendChild(printBarcodeContent);
@@ -513,53 +468,103 @@
                 selectButton.style.cssText = "display: inline-block; margin: 0px 10px;";
                 printBarcodeContent.appendChild(selectButton);
 
-                selectButton.addEventListener("click", function () {
-                    let numberBarcode = isNaN(numberInput.valueAsNumber) ? Number(numberInput.placeholder) : Number(numberInput.valueAsNumber);
+                document.checkPrintBarcodeButton.printBarcodeList = [];
 
-                    if (numberBarcode <= 0) {
-                        return;
-                    }
-
-                    let productTable = document.querySelector("div.content>div>div.container-table>table#dataTable>tbody");
-
-                    if (productTable) {
-                        let allCheckBox = productTable.querySelectorAll("input.vs-checkbox--input");
-
-                        if (allCheckBox) {
-                            let allPrintHTML = [];
-
-                            for (let i = 0, j = allCheckBox.length; i < j; i++) {
-                                let checkBox = allCheckBox.item(i);
-
-                                if (checkBox.checked) {
-                                    let dataTable = checkBox.parentNode.parentNode.parentNode.children;
-                                    let barcode = dataTable.item(3).innerText;
-                                    let product = dataTable.item(4).innerText;
-                                    let price = dataTable.item(5).innerText;
-
-                                    allPrintHTML[allPrintHTML.length] = [barcode, product, price];
-                                }
-                            }
-
-                            if (typeof document.printBarcodeHTML === "function" && allPrintHTML.length > 0) {
-                                document.printBarcodeHTML({ args: [allPrintHTML, numberBarcode,] });
-                                //this.previousSibling.previousSibling.click();
-                            }
-                        }
-                    }
-                }, false);
-
-                document.addEventListener("click", function (event) {
+                selectButton.addEventListener("click", function (event) {
                     let element = event.target;
                     console.log("Click: " + element.innerText);
                     //alert("Click: " + element.innerText);
 
-                    switch (document.location.href.split("?")[0]) {
-                        case document.location.origin + "/#/desktop/items/product/all":
-                            document.checkPrintBarcodeButton();
-                            break;
+                    let numberBarcode = isNaN(numberInput.valueAsNumber) ? Number(numberInput.placeholder) : Number(numberInput.valueAsNumber);
+
+                    if (numberBarcode > 0 && document.checkPrintBarcodeButton.printBarcodeList && document.checkPrintBarcodeButton.printBarcodeList.length > 0) {
+                        document.printContentDocument(function (printDocument) {
+                            let numberColumn = 5;
+                            let numberRow = 1000 / numberColumn;
+                            let leftPage = 0;
+                            let topPage = 0;
+
+                            let barcodeHTML = document.createElement("div");
+                            barcodeHTML.style.position = "absolute";
+                            barcodeHTML.style.top = "-999";
+                            barcodeHTML.style.left = "-999";
+                            printDocument.body.appendChild(barcodeHTML);
+
+                            let table = document.createElement("table");
+                            table.style.cssText = "border = 0px; left: " + leftPage + "px; top: " + topPage + "px;";
+                            barcodeHTML.insertBefore(table, barcodeHTML.firstChild);
+
+                            let tableBody = document.createElement("tbody");
+                            table.appendChild(tableBody);
+
+                            let countBarcode = 0;
+                            let barcode = "";
+                            let product = "";
+                            let price = "";
+                            let barcodeList = Object.keys(document.checkPrintBarcodeButton.printBarcodeList);
+
+                            for (let i = 0; i < numberRow && (barcodeList.length > 0 || countBarcode > 0); i++) {
+                                let tableRow = document.createElement("tr");
+                                tableBody.appendChild(tableRow);
+
+                                for (let j = 0; j < numberColumn && (barcodeList.length > 0 || countBarcode > 0); j++) {
+                                    if (countBarcode === 0) {
+                                        if (barcodeList.length > 0) {
+                                            countBarcode = numberBarcode;
+
+                                            barcode = barcodeList.shift();
+                                            let productArray = document.checkPrintBarcodeButton.printBarcodeList[barcode];
+                                            product = productArray[0];
+                                            price = productArray[1];
+                                        } else {
+                                            break;
+                                        }
+                                    }
+
+                                    countBarcode--;
+
+                                    let tableData = document.createElement("td");
+                                    tableData.style.cssText = "padding: 0px; text-align: center; vertical-align: bottom; width: 178px;";
+                                    tableRow.appendChild(tableData);
+
+                                    let barcodeContent = document.createElement("div");
+                                    barcodeContent.style.cssText = "padding: 10px; text-align: center; vertical-align: middle; background: #fff; font-family: 'TH Sarabun New';";
+                                    tableData.appendChild(barcodeContent);
+
+                                    let barcodeHeader = document.createElement("div");
+                                    barcodeHeader.style.cssText = "padding: 0px; text-align: center; font-weight: bold; font-size: 1.0em;";
+                                    barcodeHeader.innerText = product;
+                                    barcodeContent.appendChild(barcodeHeader);
+
+                                    let barcodeBody = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                                    barcodeBody.style.cssText = "padding: 0px; text-align: center;";
+                                    barcodeContent.appendChild(barcodeBody);
+
+                                    let barcodeFooter = document.createElement("div");
+                                    barcodeFooter.style.cssText = "padding: 0px; text-align: center; font-weight: bold; font-size: 1.2em;";
+                                    barcodeFooter.innerText = Number(price).toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                    }) + " บาท";
+                                    barcodeContent.appendChild(barcodeFooter);
+
+                                    // noinspection JSUnresolvedFunction
+                                    JsBarcode(barcodeBody, barcode, {
+                                        format: "CODE128",
+                                        font: "TH Sarabun New",
+                                        fontOptions: "bold",
+                                        fontSize: 18,
+                                        margin: 0,
+                                        textMargin: 0,
+                                        width: 2,
+                                        height: 30,
+                                        displayValue: false,
+                                    });
+                                }
+                            }
+                        });
                     }
-                }, false);
+                });
             };
         }
 
@@ -576,9 +581,21 @@
         document.printFooterHTML = responseText;
     });
 
-    setTimeout(function () {
-        if (document.location.href.startsWith(document.location.origin + "/#/desktop/items/product/all")) {
-            document.checkPrintBarcodeButton();
-        }
-    }, 100);
+    document.addEventListener("click", function (event) {
+        setTimeout(function () {
+            let element = event.target;
+            console.log("Click: " + element.innerText);
+            //alert("Click: " + element.innerText);
+
+            switch (document.location.href.split("?")[0]) {
+                case document.location.origin + "/#/desktop/items/product/all":
+                    document.checkPrintBarcodeButton(element);
+                    break;
+
+                case document.location.origin + "/#/desktop/pos":
+                    document.checkPrintBarcodeButton(element);
+                    break;
+            }
+        }, 100);
+    });
 })();
