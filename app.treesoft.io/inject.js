@@ -77,7 +77,7 @@
                     document.disconnectMutationObserver();
                 }
 
-                document.mutationObserver = new MutationObserver(function (records) {
+                document.connectMutationObserver.mutationObserver = new MutationObserver(function (records) {
                     if (typeof callback === "function") {
                         for (let record of records) {
                             switch (record.type) {
@@ -104,13 +104,13 @@
                     }
                 });
 
-                document.mutationObserver.observe(target, options || {
+                document.connectMutationObserver.mutationObserver.observe(target, options || {
                     attributes: true,
                     childList: true,
                     subtree: true
                 });
 
-                return document.mutationObserver;
+                return document.connectMutationObserver.mutationObserver;
             };
         }
 
@@ -120,7 +120,7 @@
                     document.disconnectIntersectionObserver();
                 }
 
-                document.intersectionObserver = new IntersectionObserver(function (entries, observer) {
+                document.connectIntersectionObserver.intersectionObserver = new IntersectionObserver(function (entries, observer) {
                     if (typeof callback === "function") {
                         for (let entry of entries) {
                             callback(entry, observer, target);
@@ -128,9 +128,9 @@
                     }
                 }, options || {root: null, rootMargin: "0px 0px 0px 0px", threshold: 0.0});
 
-                document.intersectionObserver.observe(target);
+                document.connectIntersectionObserver.intersectionObserver.observe(target);
 
-                return document.intersectionObserver;
+                return document.connectIntersectionObserver.intersectionObserver;
             };
         }
 
@@ -141,7 +141,7 @@
                 }
 
                 // noinspection JSUnresolvedFunction
-                document.resizeObserver = new ResizeObserver(function (entries, observer) {
+                document.connectResizeObserver.resizeObserver = new ResizeObserver(function (entries, observer) {
                     if (typeof callback === "function") {
                         for (let entry of entries) {
                             callback(entry, observer, target);
@@ -149,28 +149,28 @@
                     }
                 });
 
-                document.resizeObserver.observe(target, options || {box: "border-box"});
+                document.connectResizeObserver.resizeObserver.observe(target, options || {box: "border-box"});
 
-                return document.resizeObserver;
+                return document.connectResizeObserver.resizeObserver;
             };
         }
 
         if (typeof document.disconnectMutationObserver !== "function") {
             document.disconnectMutationObserver = function () {
-                if (document.mutationObserver instanceof MutationObserver) {
-                    document.mutationObserver.disconnect();
-                    document.mutationObserver = undefined;
-                    delete document.mutationObserver;
+                if (document.connectMutationObserver.mutationObserver instanceof MutationObserver) {
+                    document.connectMutationObserver.mutationObserver.disconnect();
+                    document.connectMutationObserver.mutationObserver = undefined;
+                    delete document.connectMutationObserver.mutationObserver;
                 }
             };
         }
 
         if (typeof document.disconnectIntersectionObserver !== "function") {
             document.disconnectIntersectionObserver = function () {
-                if (document.intersectionObserver instanceof IntersectionObserver) {
-                    document.intersectionObserver.disconnect();
-                    document.intersectionObserver = undefined;
-                    delete document.intersectionObserver;
+                if (document.connectIntersectionObserver.intersectionObserver instanceof IntersectionObserver) {
+                    document.connectIntersectionObserver.intersectionObserver.disconnect();
+                    document.connectIntersectionObserver.intersectionObserver = undefined;
+                    delete document.connectIntersectionObserver.intersectionObserver;
                 }
             };
         }
@@ -178,10 +178,10 @@
         if (typeof document.disconnectResizeObserver !== "function") {
             document.disconnectResizeObserver = function () {
                 // noinspection JSUnresolvedVariable
-                if (document.resizeObserver instanceof ResizeObserver) {
-                    document.resizeObserver.disconnect();
-                    document.resizeObserver = undefined;
-                    delete document.resizeObserver;
+                if (document.connectResizeObserver.resizeObserver instanceof ResizeObserver) {
+                    document.connectResizeObserver.resizeObserver.disconnect();
+                    document.connectResizeObserver.resizeObserver = undefined;
+                    delete document.connectResizeObserver.resizeObserver;
                 }
             };
         }
@@ -470,7 +470,7 @@
 
                 printBarcodeContent = document.createElement("div");
                 printBarcodeContent.id = "print-barcode-content";
-                printBarcodeContent.style.cssText = "display: inline-block;";
+                printBarcodeContent.style.cssText = "display: inline-block; padding-bottom: 10px;";
                 headerActionBar.appendChild(printBarcodeContent);
 
                 let textCaption = document.createElement("div");
@@ -591,6 +591,43 @@
                         });
                     }
                 });
+
+                headerActionBar.parentElement.style.cssText = "flex: none; max-width: none;";
+
+                let allProductButton = document.createElement("button");
+                allProductButton.type = "button";
+                allProductButton.className = "btn btn-danger";
+                allProductButton.innerText = "แสดงสินค้าทั้งหมด";
+                allProductButton.style.cssText = "display: inline-block; margin: 0px 10px;";
+                printBarcodeContent.insertBefore(allProductButton, printBarcodeContent.firstChild);
+
+                allProductButton.addEventListener("click", function (event) {
+                    let element = event.target;
+                    console.log("Click: " + element.innerText);
+                    //alert("Click: " + element.innerText);
+
+                    (async function () {
+                        try {
+                            // noinspection JSUnresolvedVariable
+                            document.Vue = document.getElementById("app").__vue__;
+
+                            // noinspection JSUnresolvedVariable
+                            document.Vue.$store.state.app.limitRowsPerpage = 1000;
+
+                            // noinspection JSUnresolvedVariable,JSUnresolvedFunction
+                            await document.Vue.$vnode.child.$children.find(function (element) {
+                                // noinspection JSUnresolvedVariable
+                                return element.$vnode.tag === "vue-component-192-ProductAll";
+                            }).fetchData();
+
+                            // noinspection JSUnresolvedVariable
+                            document.Vue.$store.state.product.products.sort((a, b) => (a.product_name > b.product_name) ? 1 : ((b.product_name > a.product_name) ? -1 : 0));
+                        } catch (e) {
+                        }
+                    })();
+
+                    allProductButton.parentElement.removeChild(allProductButton);
+                });
             };
         }
 
@@ -624,4 +661,14 @@
             }
         }, 100);
     });
+
+    /*
+    // noinspection JSUnusedLocalSymbols
+    document.connectMutationObserver(document.body, {childList: true}, function (type, added, target, node) {
+        document.disconnectMutationObserver();
+
+        if (type === "childList" && added === "addedNodes") {
+        }
+    });
+    */
 })();
