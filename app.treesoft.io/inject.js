@@ -334,7 +334,7 @@
                     printFooter.querySelector("div#numberPay").innerHTML = "<strong>" + parseFloat(numberPay).toLocaleString(undefined, {maximumFractionDigits: 2,}) + "</strong>";
                     printFooter.querySelector("div#numberChange").innerHTML = "<strong>" + parseFloat(numberChange).toLocaleString(undefined, {maximumFractionDigits: 2,}) + "</strong>";
 
-                    injectDocument.querySelector("html").style.cssText = "width: 600px; font-size: 60px;";
+                    injectDocument.querySelector("html").style.cssText = "width: 300px; font-size: 60px;";
 
                     injectDocument.body.innerHTML = "";
                     injectDocument.body.appendChild(printContent);
@@ -405,12 +405,38 @@
                     return;
                 } else if (element.localName === "input" && element.type === "checkbox" && element.className === "vs-checkbox--input") {
                     if (document.checkPrintBarcodeButton.printBarcodeList) {
-                        let dataList = element.closest("tr").children;
+                        if (element.value === "true") {
+                            let listAllProduct = element.closest("thead").nextElementSibling.children;
 
-                        if (element.checked) {
-                            document.checkPrintBarcodeButton.printBarcodeList[dataList.item(3).innerText] = [dataList.item(4).innerText, dataList.item(5).innerText];
+                            if (listAllProduct) {
+                                listAllProduct.forEach(function (listItem) {
+                                    let dataRow = listItem.closest("tr");
+
+                                    if (dataRow) {
+                                        let checkBoxInput = dataRow.querySelector("td>div.vs-component>input.vs-checkbox--input");
+
+                                        if (checkBoxInput) {
+                                            let dataList = dataRow.children;
+
+                                            if (checkBoxInput.checked) {
+                                                document.checkPrintBarcodeButton.printBarcodeList[dataList.item(3).innerText] = [dataList.item(4).innerText, dataList.item(5).innerText];
+                                            } else {
+                                                delete document.checkPrintBarcodeButton.printBarcodeList[dataList.item(3).innerText];
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        } else if (element.value === "false") {
+                            document.checkPrintBarcodeButton.printBarcodeList = [];
                         } else {
-                            delete document.checkPrintBarcodeButton.printBarcodeList[dataList.item(3).innerText];
+                            let dataList = element.closest("tr").children;
+
+                            if (element.checked) {
+                                document.checkPrintBarcodeButton.printBarcodeList[dataList.item(3).innerText] = [dataList.item(4).innerText, dataList.item(5).innerText];
+                            } else {
+                                delete document.checkPrintBarcodeButton.printBarcodeList[dataList.item(3).innerText];
+                            }
                         }
                     }
 
