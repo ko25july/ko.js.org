@@ -592,42 +592,63 @@
                     }
                 });
 
-                headerActionBar.parentElement.style.cssText = "flex: none; max-width: none;";
+                if (typeof document.Vue === "undefined") {
+                    document.Vue = document.getElementById("app");
 
-                let allProductButton = document.createElement("button");
-                allProductButton.type = "button";
-                allProductButton.className = "btn btn-danger";
-                allProductButton.innerText = "แสดงสินค้าทั้งหมด";
-                allProductButton.style.cssText = "display: inline-block; margin: 0px 10px;";
-                printBarcodeContent.insertBefore(allProductButton, printBarcodeContent.firstChild);
+                    if (typeof document.Vue !== "undefined") {
+                        // noinspection JSUnresolvedVariable
+                        document.Vue = document.Vue.__vue__;
+                    }
+                }
 
-                allProductButton.addEventListener("click", function (event) {
-                    let element = event.target;
-                    console.log("Click: " + element.innerText);
-                    //alert("Click: " + element.innerText);
+                if (typeof document.Vue !== "undefined" && typeof document.VueProductAll === "undefined") {
+                    // noinspection JSUnresolvedVariable,JSUnresolvedFunction
+                    document.VueProductAll = document.Vue.$vnode.child.$children.find(function (element) {
+                        // noinspection JSUnresolvedVariable
+                        return element.$vnode.tag && element.$vnode.tag.endsWith("-ProductAll");
+                    });
+                }
 
-                    (async function () {
-                        try {
-                            // noinspection JSUnresolvedVariable
-                            document.Vue = document.getElementById("app").__vue__;
+                if (typeof document.Vue !== "undefined" && typeof document.VueProductAll !== "undefined") {
+                    // noinspection JSUnresolvedVariable
+                    if (document.VueProductAll.$store.state.app.pagination.totalRows > document.Vue.$store.state.app.limitRowsPerpage) {
+                        headerActionBar.parentElement.style.cssText = "flex: none; max-width: none;";
 
-                            // noinspection JSUnresolvedVariable
-                            document.Vue.$store.state.app.limitRowsPerpage = 1000;
+                        let allProductButton = document.createElement("button");
+                        allProductButton.type = "button";
+                        allProductButton.className = "btn btn-danger";
+                        allProductButton.innerText = "แสดงสินค้าทั้งหมด";
+                        allProductButton.style.cssText = "display: inline-block; margin: 0px 10px;";
+                        printBarcodeContent.insertBefore(allProductButton, printBarcodeContent.firstChild);
 
-                            // noinspection JSUnresolvedVariable,JSUnresolvedFunction
-                            await document.Vue.$vnode.child.$children.find(function (element) {
-                                // noinspection JSUnresolvedVariable
-                                return element.$vnode.tag === "vue-component-192-ProductAll";
-                            }).fetchData();
+                        allProductButton.addEventListener("click", function (event) {
+                            let element = event.target;
+                            console.log("Click: " + element.innerText);
+                            //alert("Click: " + element.innerText);
 
-                            // noinspection JSUnresolvedVariable
-                            document.Vue.$store.state.product.products.sort((a, b) => (a.product_name > b.product_name) ? 1 : ((b.product_name > a.product_name) ? -1 : 0));
-                        } catch (e) {
-                        }
-                    })();
+                            (async function () {
+                                try {
+                                    if (typeof document.Vue !== "undefined" && typeof document.VueProductAll !== "undefined") {
+                                        // noinspection JSUnresolvedVariable
+                                        document.Vue.$store.state.app.limitRowsPerpage = Math.ceil(document.VueProductAll.$store.state.app.pagination.totalRows / 10) * 10;
 
-                    allProductButton.parentElement.removeChild(allProductButton);
-                });
+                                        // noinspection JSUnresolvedVariable
+                                        document.VueProductAll.query.page = 1;
+
+                                        // noinspection JSUnresolvedVariable,JSUnresolvedFunction
+                                        await document.VueProductAll.fetchData();
+
+                                        // noinspection JSUnresolvedVariable
+                                        document.Vue.$store.state.product.products.sort((a, b) => (a.product_name > b.product_name) ? 1 : ((b.product_name > a.product_name) ? -1 : 0));
+                                    }
+                                } catch (e) {
+                                }
+                            })();
+
+                            allProductButton.parentElement.removeChild(allProductButton);
+                        });
+                    }
+                }
             };
         }
 
