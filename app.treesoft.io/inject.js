@@ -202,7 +202,9 @@
                             }
                         }
 
-                        injectDocument.execCommandOld(aCommandName, aShowDefaultUI, aValueArgument);
+                        setTimeout(function () {
+                            injectDocument.execCommandOld(aCommandName, aShowDefaultUI, aValueArgument);
+                        }, 1000);
                     };
                 }
 
@@ -216,7 +218,9 @@
                             }
                         }
 
-                        injectDocument.printOld();
+                        setTimeout(function () {
+                            injectDocument.printOld();
+                        }, 1000);
                     };
                 }
             };
