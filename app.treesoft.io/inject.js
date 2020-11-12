@@ -338,7 +338,7 @@
                     printFooter.querySelector("div#numberPay").innerHTML = "<strong>" + parseFloat(numberPay).toLocaleString(undefined, {maximumFractionDigits: 2,}) + "</strong>";
                     printFooter.querySelector("div#numberChange").innerHTML = "<strong>" + parseFloat(numberChange).toLocaleString(undefined, {maximumFractionDigits: 2,}) + "</strong>";
 
-                    injectDocument.querySelector("html").style.cssText = "width: 300px; font-size: 70px;";
+                    injectDocument.querySelector("html").style.cssText = "width: 300px; font-size: 60px; font-weight: 600;";
 
                     injectDocument.body.innerHTML = "";
                     injectDocument.body.appendChild(printContent);
