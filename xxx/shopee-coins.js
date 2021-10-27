@@ -1,0 +1,41 @@
+// https://api.justyy.workers.dev/api/curl/?url=https://shopee-coins.glitch.me/?eval=import\(\'./shopee-coins.js\'\)
+
+(async () => {
+  try {
+    await page.goto('https://shopee.co.th/shopee-coins', { waitUntil: 'networkidle0' })
+  } catch { }
+
+  if (await page.url().includes('login')) {
+    try {
+      var element = await page.waitForXPath('//button[contains(., "ไทย")]', { timeout: 3000 })
+      if (element) await element.click()
+    } catch { }
+
+    try {
+      var loginKey = await page.waitForSelector('#main>div>div>div>div>form>div>div>div>div>input[name=loginKey]', { timeout: 3000 })
+      var password = await page.waitForSelector('#main>div>div>div>div>form>div>div>div>div>input[name=password]', { timeout: 3000 })
+
+      if (loginKey && password) {
+        await loginKey.type('Xko25july@gmail.com')
+        await password.type('Xnongkoko')
+
+        await Promise.all([page.keyboard.press('Enter'), page.waitForNavigation({ waitUntil: 'networkidle0' })])
+      }
+    } catch { }
+  }
+
+  try {
+    if (await page.url().includes('/user/coin/list')) {
+      var element = await page.waitForXPath('//a[contains(., "รับ coins เพิ่ม")]', { timeout: 3000 })
+      if (element) await Promise.all([element.click(), page.waitForTimeout(3000)])
+
+      if (await page.url().includes('/shopee-coins')) {
+        var element = await page.waitForXPath('//button[contains(., "เช็คอินวันนี้ รับ")]', { timeout: 3000 })
+        if (element) await Promise.all([element.click(), page.waitForTimeout(3000)])
+
+        var element = await page.waitForSelector('div>div>div>main>section>div>a', { timeout: 3000 })
+        if (element) await notify(`Shopee Coins = ${element.innerText}`)
+      }
+    }
+  } catch { }
+})()
