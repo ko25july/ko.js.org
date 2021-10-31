@@ -46,7 +46,10 @@
         page.waitForTimeout(3000)
 
         var element = await page.waitForSelector('#main>div>div>div>main>section>div>div>section>div>a>p', { timeout: 3000 })
-        if (element) result = `มีเหรียญสะสม = ${element.innerText} บาท`
+        if (element) {
+          let textContent = await page.evaluate(element => element.textContent, element)
+          result = `มีเหรียญสะสม = ${textContent} บาท`
+        }
       }
     }
   } catch { }
