@@ -1,3 +1,4 @@
+// https://api.justyy.workers.dev/api/curl/?url=https://browser-server.glitch.me/
 // https://api.justyy.workers.dev/api/curl/?url=https://browser-server.glitch.me/?eval=include\(\%22./.data/shopee-coins.js\%22\)
 
 (async () => {
@@ -58,7 +59,7 @@
     }
   }
 
-  // await notify(result)
+  await notify(result)
 
   return result
 })()
