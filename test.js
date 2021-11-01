@@ -28,34 +28,37 @@
     } catch { }
   }
 
-  try {
-    if (await page.url().includes('/user/coin')) {
+  if (await page.url().includes('/user/coin')) {
+    try {
       var element = await page.waitForXPath('//a[contains(., "รับ coins เพิ่ม")]', { timeout: 3000 })
       if (element) {
         await element.focus()
         await Promise.all([element.press('Enter'), page.waitForNavigation({ waitUntil: 'networkidle0' })])
       }
+    } catch { }
 
-      if (await page.url().includes('/shopee-coins')) {
+    if (await page.url().includes('/shopee-coins')) {
+      try {
         var element = await page.waitForXPath('//button[contains(., "เช็คอินวันนี้ รับ")]', { timeout: 3000 })
         if (element) {
           await element.focus()
           await Promise.all([element.press('Enter'), page.waitForNavigation({ waitUntil: 'networkidle0' })])
         }
+      } catch { }
 
-        page.waitForTimeout(3000)
+      page.waitForTimeout(3000)
 
+      try {
         var element = await page.waitForSelector('#main>div>div>div>main>section>div>div>section>div>a>p', { timeout: 3000 })
         if (element) {
           let textContent = await page.evaluate(element => element.textContent, element)
           result = `มีเหรียญสะสม = ${textContent} บาท`
-        } else {
-          result = element
         }
-      }
+      } catch { }
     }
-  } catch { }
+  }
 
   // await notify(result)
+
   return result
 })()
